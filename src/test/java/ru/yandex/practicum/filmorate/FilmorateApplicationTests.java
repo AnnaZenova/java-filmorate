@@ -63,7 +63,7 @@ class FilmorateApplicationTests {
 	@Test
 	@DisplayName("Создаем пустой фильм")
 	void shouldNotCreateEmptyMovie() {
-		assertThrows(NotFoundException.class, () -> filmController.create(film2), "Валидация не пройдена");
+		assertThrows(NotFoundException.class, () -> filmController.create(film1), "Валидация не пройдена");
 	}
 
 	@Test
