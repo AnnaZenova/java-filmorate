@@ -29,9 +29,6 @@ public class UserController {
         if (!(user.getEmail().contains("@"))) {
             throw new NotFoundException("Электронная почта должна содержать символ @");
         }
-        if (user.getLogin().contains(" ")) {
-            throw new WrongDescriptionException("Логин не может содержать пробелы");
-        }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
@@ -55,9 +52,6 @@ public class UserController {
         User oldUser = users.get(user.getId());
         if (!(user.getEmail().contains("@"))) {
             throw new NotFoundException("Электронная почта должна содержать символ @");
-        }
-        if (user.getLogin().contains(" ")) {
-            throw new WrongDescriptionException("Логин не может содержать пробелы");
         }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
