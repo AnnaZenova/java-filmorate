@@ -17,77 +17,65 @@ import java.time.LocalDate;
 class FilmorateApplicationTests {
 	FilmController filmController = new FilmController();
 	UserController userController = new UserController();
-	Film film;
-	Film film1;
-	Film film2;
-	User user;
-	User user1;
-	User user2;
+	Film filmNotOk;
+	Film filmEmpty;
+	Film filmOk;
+	User userNotOk;
+	User userEmpty;
+	User userOk;
 
 	@BeforeEach
 	void shouldCreateBeforeTest() {
-		film = new Film();
-		film.setName("Пупсик");
-		film.setReleaseDate(LocalDate.of(1700, 11, 12));
-		film.setDescription("Description");
-		film.setDuration(-100);
+		filmNotOk = new Film();
+		filmNotOk.setName("Пупсик");
+		filmNotOk.setReleaseDate(LocalDate.of(1700, 11, 12));
+		filmNotOk.setDescription("Description");
+		filmNotOk.setDuration(-100);
 
-		film1 = new Film();
+		filmEmpty = new Film();
 
-		film2 = new Film();
-		film2.setName("Валидный");
-		film2.setReleaseDate(LocalDate.of(2025, 11, 12));
-		film2.setDescription("Description val");
-		film2.setDuration(100);
+		filmOk = new Film();
+		filmOk.setName("Валидный");
+		filmOk.setReleaseDate(LocalDate.of(2025, 11, 12));
+		filmOk.setDescription("Description val");
+		filmOk.setDuration(100);
 
-		user = new User();
-		user.setBirthday(LocalDate.of(2026, 12, 12));
-		user.setLogin("Pupsik");
-		user.setEmail("pupsik.ru");
+		userNotOk = new User();
+		userNotOk.setBirthday(LocalDate.of(2026, 12, 12));
+		userNotOk.setLogin("Pupsik");
+		userNotOk.setEmail("pupsik.ru");
 
-		user1 = new User();
+		userEmpty = new User();
 
-		user2 = new User();
-		user2.setBirthday(LocalDate.of(2024, 12, 12));
-		user2.setLogin("Pupsikensky");
-		user2.setEmail("pupsik@.ru");
+		userOk = new User();
+		userOk.setBirthday(LocalDate.of(2024, 12, 12));
+		userOk.setLogin("Pupsikensky");
+		userOk.setEmail("pupsik@.ru");
 
 	}
 
 	@Test
 	@DisplayName("Создаем фильм")
 	void shouldCreateMovie() {
-		assertEquals(filmController.create(film2), film2);
-	}
-
-	@Test
-	@DisplayName("Создаем пустой фильм")
-	void shouldNotCreateEmptyMovie() {
-		assertThrows(NotFoundException.class, () -> filmController.create(film1), "Валидация не пройдена");
+		assertEquals(filmController.create(filmOk), filmOk);
 	}
 
 	@Test
 	@DisplayName("Создаем юзера")
 	void shouldCreateUser() {
-		assertEquals(userController.create(user2), user2);
-	}
-
-	@Test
-	@DisplayName("Создаем пустого юзера")
-	void shouldNotCreateEmptyUser() {
-		assertThrows(NotFoundException.class, () -> userController.create(user1), "Валидация не пройдена");
+		assertEquals(userController.create(userOk), userOk);
 	}
 
 	@Test
 	@DisplayName("Создаем юзера c некорректными данными")
 	void shouldNotCreateUserWithSuchData() {
-		assertThrows(NotFoundException.class, () -> userController.create(user), "Валидация не пройдена");
+		assertThrows(NotFoundException.class, () -> userController.create(userNotOk), "Валидация не пройдена");
 	}
 
 	@Test
 	@DisplayName("Создаем фильм c некорректными данными")
 	void shouldNotCreatFilmWithSuchData() {
-		assertThrows(WrongDataException.class, () -> filmController.create(film), "Валидация не пройдена");
+		assertThrows(WrongDataException.class, () -> filmController.create(filmNotOk), "Валидация не пройдена");
 	}
 }
 

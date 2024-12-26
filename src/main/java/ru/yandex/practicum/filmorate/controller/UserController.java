@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
@@ -19,24 +20,22 @@ public class UserController {
 
     @GetMapping
     public Collection<User> findAll() {
+        log.info("Получен GET-запрос к эндпоинту: '/users' на получение users");
         return users.values();
     }
 
     @PostMapping
-    public User create(@RequestBody User user) {
+    public User create(@RequestBody @Valid User user) {
         log.info("Получен POST-запрос к эндпоинту: '/users' на добавление user");
 
-        if (user.getEmail() == null || user.getEmail().isBlank() || !(user.getEmail().contains("@"))) {
-            throw new NotFoundException("Электронная почта не может быть пустой и должна содержать символ @");
+        if (!(user.getEmail().contains("@"))) {
+            throw new NotFoundException("Электронная почта должна содержать символ @");
         }
-        if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            throw new WrongDescriptionException("Логин не может быть пустым и содержать пробелы");
+        if (user.getLogin().contains(" ")) {
+            throw new WrongDescriptionException("Логин не может содержать пробелы");
         }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new WrongDataException("Дата рождения не может быть в будущем");
         }
         user.setId(getNextId());
         users.put(user.getId(), user);
@@ -53,20 +52,17 @@ public class UserController {
     }
 
     @PutMapping
-    public User update(@RequestBody User user) {
+    public User update(@RequestBody @Valid User user) {
         log.info("Получен PUT-запрос к эндпоинту: '/users' на обновление user");
         User oldUser = users.get(user.getId());
-        if (user.getEmail() == null || user.getEmail().isBlank() || !(user.getEmail().contains("@"))) {
-            throw new NotFoundException("Электронная почта не может быть пустой и должна содержать символ @");
+        if (!(user.getEmail().contains("@"))) {
+            throw new NotFoundException("Электронная почта должна содержать символ @");
         }
-        if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            throw new WrongDescriptionException("Логин не может быть пустым и содержать пробелы");
+        if (user.getLogin().contains(" ")) {
+            throw new WrongDescriptionException("Логин не может содержать пробелы");
         }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new WrongDataException("Дата рождения не может быть в будущем");
         }
         oldUser = users.get(user.getId());
         oldUser.setName(user.getName());
