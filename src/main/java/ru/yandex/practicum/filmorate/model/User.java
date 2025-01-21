@@ -12,7 +12,7 @@ public class User {
     @Email
     private String email;
     @NotBlank(message = "Логин не может быть пустой")
-    @Pattern(regexp = "\\S*",message = "Логин не может содержать пробелы")
+    @Pattern(regexp = "\\S*", message = "Логин не может содержать пробелы")
     private String login;
     private String name;
     @PastOrPresent(message = "Дата не может быть в будущем")
