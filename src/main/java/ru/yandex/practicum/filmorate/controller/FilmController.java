@@ -29,10 +29,12 @@ public class FilmController {
     public Film create(@RequestBody @Valid Film film) {
         log.info("Получен POST-запрос к эндпоинту: '/films' на добавление фильма");
         // проверяем выполнение необходимых условий
+        if(film.getReleaseDate()==null) {
+            throw new NotFoundException("Дата релиза не может быть пустой");
+        }
         if (film.getReleaseDate().isBefore(BORDER_DATE)) {
             throw new WrongDataException("Дата релиза — не раньше 28 декабря 1895 года");
         }
-
         // формируем дополнительные данные
         film.setId(getNextId());
         // сохраняем новую публикацию в памяти приложения
@@ -55,6 +57,9 @@ public class FilmController {
         // проверяем необходимые условия
         if (films.containsKey(newFilm.getId())) {
             Film oldFilm = films.get(newFilm.getId());
+            if(newFilm.getReleaseDate()==null) {
+                throw new NotFoundException("Дата релиза не может быть пустой");
+            }
             if (newFilm.getReleaseDate().isBefore(BORDER_DATE)) {
                 throw new WrongDataException("Дата релиза — не раньше 28 декабря 1895 года");
             }

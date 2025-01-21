@@ -24,10 +24,6 @@ public class UserController {
     @PostMapping
     public User create(@RequestBody @Valid User user) {
         log.info("Получен POST-запрос к эндпоинту: '/users' на добавление user");
-
-        if (!(user.getEmail().contains("@"))) {
-            throw new NotFoundException("Электронная почта должна содержать символ @");
-        }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
