@@ -29,7 +29,7 @@ public class FilmController {
     public Film create(@RequestBody @Valid Film film) {
         log.info("Получен POST-запрос к эндпоинту: '/films' на добавление фильма");
         // проверяем выполнение необходимых условий
-        if(film.getReleaseDate()==null) {
+        if (film.getReleaseDate() == null) {
             throw new NotFoundException("Дата релиза не может быть пустой");
         }
         if (film.getReleaseDate().isBefore(BORDER_DATE)) {
@@ -57,7 +57,7 @@ public class FilmController {
         // проверяем необходимые условия
         if (films.containsKey(newFilm.getId())) {
             Film oldFilm = films.get(newFilm.getId());
-            if(newFilm.getReleaseDate()==null) {
+            if (newFilm.getReleaseDate() == null) {
                 throw new NotFoundException("Дата релиза не может быть пустой");
             }
             if (newFilm.getReleaseDate().isBefore(BORDER_DATE)) {
