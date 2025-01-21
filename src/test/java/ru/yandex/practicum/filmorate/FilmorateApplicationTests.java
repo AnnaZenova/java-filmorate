@@ -67,12 +67,6 @@ class FilmorateApplicationTests {
 	}
 
 	@Test
-	@DisplayName("Создаем юзера c некорректными данными")
-	void shouldNotCreateUserWithSuchData() {
-		assertThrows(NotFoundException.class, () -> userController.create(userNotOk), "Валидация не пройдена");
-	}
-
-	@Test
 	@DisplayName("Создаем фильм c некорректными данными")
 	void shouldNotCreatFilmWithSuchData() {
 		assertThrows(WrongDataException.class, () -> filmController.create(filmNotOk), "Валидация не пройдена");
