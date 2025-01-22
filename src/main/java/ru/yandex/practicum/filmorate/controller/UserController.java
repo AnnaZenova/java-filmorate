@@ -2,11 +2,15 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
+
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -14,47 +18,53 @@ import java.util.Map;
 @RequestMapping("/users")
 public class UserController {
     private final Map<Integer, User> users = new HashMap<>();
+    private UserStorage userStorage;
+    private UserService userService;
+
+    @Autowired
+    public UserController(UserStorage userStorage, UserService userService) {
+        this.userStorage = userStorage;
+        this.userService = userService;
+    }
 
     @GetMapping
     public Collection<User> findAll() {
         log.info("Получен GET-запрос к эндпоинту: '/users' на получение users");
-        return users.values();
+        return userStorage.findAll();
     }
 
+    @GetMapping("/{id}/friends")
+    public List<User> getFriends(@PathVariable int id) {
+        return userService.getFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
+        return userService.getCommonFriends(id, otherId);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable int id, @PathVariable int friendId) {
+        userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void deleteFriend(@PathVariable int id, @PathVariable int friendId) {
+        userService.deleteFriend(id, friendId);
+    }
+
+    @ResponseBody
     @PostMapping
     public User create(@RequestBody @Valid User user) {
-        log.info("Получен POST-запрос к эндпоинту: '/users' на добавление user");
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        user.setId(getNextId());
-        users.put(user.getId(), user);
+        log.info("Получен POST-запрос к эндпоинту: '/users' на добавление пользователя");
+        user = userStorage.create(user);
         return user;
-    }
-
-    private int getNextId() {
-        int currentMaxId = users.keySet()
-                .stream()
-                .mapToInt(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
     }
 
     @PutMapping
     public User update(@RequestBody @Valid User user) {
         log.info("Получен PUT-запрос к эндпоинту: '/users' на обновление user");
-        User oldUser = users.get(user.getId());
-        if (!(user.getEmail().contains("@"))) {
-            throw new NotFoundException("Электронная почта должна содержать символ @");
-        }
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        oldUser = users.get(user.getId());
-        oldUser.setName(user.getName());
-        oldUser.setEmail(user.getEmail());
-        oldUser.setBirthday(user.getBirthday());
+        user = userStorage.update(user);
         return user;
     }
 }
