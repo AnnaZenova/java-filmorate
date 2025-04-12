@@ -22,6 +22,7 @@
 		<spring-boot-starter-validatio.version>2.4.1</spring-boot-starter-validatio.version>
 		<maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
 		<lombok.version>1.18.36</lombok.version>
+		<logbook-spring-boot-starter.version>3.7.2</logbook-spring-boot-starter.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -47,6 +48,11 @@
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>${gson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.zalando</groupId>
+			<artifactId>logbook-spring-boot-starter</artifactId>
+			<version>${logbook-spring-boot-starter.version}</version>
 		</dependency>
 	</dependencies>
 
