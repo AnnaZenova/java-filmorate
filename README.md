@@ -4,8 +4,6 @@ Template repository for Filmorate project.
 ### Модель базы данных представлена на ER-диаграмме
 
 ---
-[Схема.pdf](https://github.com/user-attachments/files/19570077/default.pdf)
-
 
 ### Примеры запросов в базу данных
 
@@ -32,3 +30,4 @@ Template repository for Filmorate project.
 ```
 
 </details>  
+
