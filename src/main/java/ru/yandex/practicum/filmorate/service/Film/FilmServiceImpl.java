@@ -1,24 +1,29 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.service.Film;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.WrongDataException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.Film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.User.UserStorage;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FilmServiceImpl implements FilmService {
+    @Qualifier("FilmDbStorage")
     private final FilmStorage filmStorage;
+
+    @Qualifier("UserDbStorage")
     private final UserStorage userStorage;
 
     @Override
@@ -26,7 +31,7 @@ public class FilmServiceImpl implements FilmService {
         Film film = filmStorage.getFilmById(filmId);
         if (film != null) {
             if (userStorage.getUserById(userId) != null) {
-                film.getLikes().add(userId);
+                filmStorage.putLikeToFilm(filmId, userId);
             } else {
                 throw new NotFoundException("Пользователь c ID=" + userId + " не найден!");
             }
@@ -40,7 +45,9 @@ public class FilmServiceImpl implements FilmService {
         Film film = filmStorage.getFilmById(filmId);
         if (film != null) {
             if (film.getLikes().contains(userId)) {
-                film.getLikes().remove(userId);
+                filmStorage.getFilmById(filmId).getLikes().remove(userId);
+                log.info("Удален лайк пользователя с id-" + userId + " к фильму " + filmStorage.getFilmById(filmId));
+                ;
             } else {
                 throw new NotFoundException("Лайк от пользователя c ID=" + userId + " не найден!");
             }
@@ -51,17 +58,24 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<Film> showMostLikedFilms(int count) {
-        if (count < 1) {
-            new WrongDataException("Количество фильмов для вывода не должно быть меньше 1");
+        if (count <= 0) {
+            throw new IllegalArgumentException("Count must be positive");
         }
-        return filmStorage.findAll().stream()
-                .sorted((o1, o2) -> o2.getLikes().size() - o1.getLikes().size())
-                .limit(count)
-                .collect(Collectors.toList());
+
+        List<Film> allFilms = new ArrayList<>(filmStorage.findAll());
+
+        // Сортируем по возрастанию лайков (как ожидает тест)
+        allFilms.sort((f1, f2) -> {
+            int likes1 = f1.getLikes() != null ? f1.getLikes().size() : 0;
+            int likes2 = f2.getLikes() != null ? f2.getLikes().size() : 0;
+            return Integer.compare(likes2, likes1); // Обратное сравнение
+        });
+
+        return allFilms.subList(0, Math.min(count, allFilms.size()));
     }
 
     @Override
-    public Collection<Film> findAll() {
+    public List<Film> findAll() {
         return filmStorage.findAll();
     }
 

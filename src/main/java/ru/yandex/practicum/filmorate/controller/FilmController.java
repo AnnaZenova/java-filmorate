@@ -2,10 +2,14 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import lombok.extern.slf4j.Slf4j;
-import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.Film.FilmService;
+import ru.yandex.practicum.filmorate.storage.Film.FilmStorage;
 
 import java.util.Collection;
 import java.util.List;
@@ -15,13 +19,20 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class FilmController {
-
     private final FilmService filmService;
+    private final FilmStorage filmStorage;
+
+    @Autowired
+    public FilmController(@Qualifier("FilmDbStorage") FilmStorage filmStorage, FilmService filmService) {
+        this.filmStorage = filmStorage;
+        this.filmService = filmService;
+    }
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public Collection<Film> findAll() {
         log.info("Получен GET-запрос к эндпоинту: '/films' на получение фильмов");
-        return filmService.findAll();
+        return filmStorage.findAll();
     }
 
     @GetMapping("/popular")
@@ -34,16 +45,14 @@ public class FilmController {
     @PostMapping
     public Film create(@RequestBody @Valid Film film) {
         log.info("Получен POST-запрос к эндпоинту: '/films' на добавление фильма");
-        // проверяем выполнение необходимых условий
-        film = filmService.create(film);
+        film = filmStorage.create(film);
         return film;
     }
 
     @PutMapping
     public Film update(@RequestBody @Valid Film newFilm) {
         log.info("Получен PUT-запрос к эндпоинту: '/films' на обновление фильма");
-        // проверяем необходимые условия
-        newFilm = filmService.update(newFilm);
+        newFilm = filmStorage.update(newFilm);
         return newFilm;
     }
 
@@ -62,7 +71,12 @@ public class FilmController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable int id) {
         log.info("Получен DELETE-запрос к эндпоинту: '/films' на удаление фильма с ID={}", id);
-        filmService.delete(id);
+        filmStorage.delete(id);
+    }
+
+    @GetMapping("/{id}")
+    public Film getFilmById(@PathVariable int id) {
+        return filmStorage.getFilmById(id);
     }
 }
 
