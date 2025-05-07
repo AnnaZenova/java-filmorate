@@ -1,22 +1,22 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.service.User;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.User.UserStorage;
 
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+    @Qualifier("UserDbStorage")
     private final UserStorage userStorage;
 
     @Override
-    public void addFriend(@Valid int userId, @Valid int friendId) {
+    public void addFriend(int userId, int friendId) {
         User userToAddFriend = userStorage.getUserById(userId);
         User friendToAddUser = userStorage.getUserById(friendId);
         userToAddFriend.getFriendsIds().add(friendId);
@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteFriend(@Valid int userId, @Valid int friendId) {
+    public void deleteFriend(int userId, int friendId) {
         User user = userStorage.getUserById(userId);
         user.getFriendsIds().remove(friendId);
         User friend = userStorage.getUserById(friendId);
@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getFriends(@Valid int userId) {
+    public List<User> getFriends(int userId) {
         User user = userStorage.getUserById(userId);
         List<User> friends = new ArrayList<>();
         for (Integer id : user.getFriendsIds()) {
@@ -43,19 +43,23 @@ public class UserServiceImpl implements UserService {
 
     //вывод списка общих друзей
     @Override
-    public List<User> getCommonFriends(@Valid int firstUserId, @Valid int secondUserId) {
+    public List<User> getCommonFriends(int firstUserId, int secondUserId) {
         User firstUser = userStorage.getUserById(firstUserId);
         User secondUser = userStorage.getUserById(secondUserId);
-        Set<Integer> intersection = firstUser.getFriendsIds();
-        boolean intersectionsArePresent = intersection.retainAll(secondUser.getFriendsIds());
-        if (!intersectionsArePresent) {
-            throw new NotFoundException("Нет пересечений по друзьям");
+
+        // Если один из пользователей не найден, возвращаем пустой список
+        if (firstUser == null || secondUser == null) {
+            return Collections.emptyList();
         }
-        List<User> commonFriends = new ArrayList<>();
-        for (int i : intersection) {
-            commonFriends.add(userStorage.getUserById(i));
-        }
-        return commonFriends;
+
+        // Получаем друзей для обоих пользователей
+        Set<User> firstUserFriends = new HashSet<>(userStorage.getFriends(firstUserId));
+        Set<User> secondUserFriends = new HashSet<>(userStorage.getFriends(secondUserId));
+
+        // Находим пересечение множеств (общих друзей)
+        firstUserFriends.retainAll(secondUserFriends);
+
+        return new ArrayList<>(firstUserFriends);
     }
 
     @Override
@@ -64,13 +68,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User create(@RequestBody @Valid User user) {
+    public User create(@Valid User user) {
         user = userStorage.create(user);
         return user;
     }
 
     @Override
-    public User update(@RequestBody @Valid User user) {
+    public User update(@Valid User user) {
         user = userStorage.update(user);
         return user;
     }
