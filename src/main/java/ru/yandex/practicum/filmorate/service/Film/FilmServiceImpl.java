@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service.Film;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,10 +19,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class FilmServiceImpl implements FilmService {
-    @Qualifier("FilmDbStorage")
-    private final FilmStorage filmStorage;
 
-    @Qualifier("UserDbStorage")
+    private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
     @Override
@@ -32,6 +29,7 @@ public class FilmServiceImpl implements FilmService {
         if (film != null) {
             if (userStorage.getUserById(userId) != null) {
                 filmStorage.putLikeToFilm(filmId, userId);
+                log.info("Добавлен лайк пользователя с id-" + userId + " к фильму " + filmStorage.getFilmById(filmId));
             } else {
                 throw new NotFoundException("Пользователь c ID=" + userId + " не найден!");
             }
@@ -47,7 +45,6 @@ public class FilmServiceImpl implements FilmService {
             if (film.getLikes().contains(userId)) {
                 filmStorage.getFilmById(filmId).getLikes().remove(userId);
                 log.info("Удален лайк пользователя с id-" + userId + " к фильму " + filmStorage.getFilmById(filmId));
-                ;
             } else {
                 throw new NotFoundException("Лайк от пользователя c ID=" + userId + " не найден!");
             }
@@ -70,7 +67,7 @@ public class FilmServiceImpl implements FilmService {
             int likes2 = f2.getLikes() != null ? f2.getLikes().size() : 0;
             return Integer.compare(likes2, likes1); // Обратное сравнение
         });
-
+        log.info("Возвращаем список наиболее популярных фильмов");
         return allFilms.subList(0, Math.min(count, allFilms.size()));
     }
 
@@ -81,19 +78,21 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film create(@RequestBody @Valid Film film) {
-        film = filmStorage.create(film);
-        return film;
+        return filmStorage.create(film);
     }
 
     @Override
     public Film update(@RequestBody @Valid Film newFilm) {
         // проверяем необходимые условия
-        newFilm = filmStorage.update(newFilm);
-        return newFilm;
+        return filmStorage.update(newFilm);
     }
 
     @Override
     public void delete(@PathVariable int id) {
         filmStorage.delete(id);
+    }
+
+    public Film getFilmById(int filmId) {
+        return filmStorage.getFilmById(filmId);
     }
 }

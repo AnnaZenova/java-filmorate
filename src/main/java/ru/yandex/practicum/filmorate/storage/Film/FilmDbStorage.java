@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import lombok.extern.slf4j.Slf4j;
+import ru.yandex.practicum.filmorate.storage.Mpa.MpaDbStorage;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -22,6 +23,11 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository("FilmDbStorage")
 public class FilmDbStorage implements FilmStorage {
+
+    private final LocalDate RELEASE_DATE_MIN_DATE = LocalDate.of(1895, 12, 28);
+
+    MpaDbStorage mpaDbStorage;
+
     private final JdbcTemplate jdbcTemplate;
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
@@ -174,10 +180,10 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private boolean isValidFilm(Film film) {
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate().isBefore(RELEASE_DATE_MIN_DATE)) {
             throw new WrongDataException("Некорректная дата релиза фильма: " + film.getReleaseDate());
         }
-        if (film.getMpa().getMpaId() < 1 || film.getMpa().getMpaId() > 5) {
+        if (film.getMpa().getMpaId() < mpaDbStorage.MPA_MIN_ID || film.getMpa().getMpaId() > mpaDbStorage.MPA_MAX_ID) {
             throw new NotFoundException("MPA ID должен быть от 1 до 5");
         }
         for (Genre genre : film.getGenres()) {

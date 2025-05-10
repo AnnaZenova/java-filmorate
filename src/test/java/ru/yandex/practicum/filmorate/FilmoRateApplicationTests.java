@@ -36,9 +36,11 @@ class FilmoRateApplicationTests {
     private User firstUser;
     private User secondUser;
     private User thirdUser;
+    private User updateUser;
     private Film firstFilm;
     private Film secondFilm;
     private Film thirdFilm;
+    private Film updateFilm;
 
 
     @BeforeEach
@@ -47,6 +49,14 @@ class FilmoRateApplicationTests {
                 .name("Ivan")
                 .login("First")
                 .email("practicum1@mail.ru")
+                .birthday(LocalDate.of(1980, 12, 23))
+                .build();
+
+        updateUser = User.builder()
+                .id(firstUser.getId())
+                .name("UpdateIvan")
+                .login("First")
+                .email("practicum11@mail.ru")
                 .birthday(LocalDate.of(1980, 12, 23))
                 .build();
 
@@ -90,18 +100,21 @@ class FilmoRateApplicationTests {
                 .build();
         thirdFilm.setMpa(new Mpa(1, "G"));
         thirdFilm.setLikes(new HashSet<>());
+
+        updateFilm = Film.builder()
+                .id(firstFilm.getId())
+                .name("UpdateName")
+                .description("UpdateDescription")
+                .releaseDate(LocalDate.of(1975, 11, 19))
+                .duration(133)
+                .build();
+        updateFilm.setMpa(new Mpa(1, "G"));
     }
 
     @Test
     public void testUpdateUser() {
         firstUser = userStorage.create(firstUser);
-        User updateUser = User.builder()
-                .id(firstUser.getId())
-                .name("UpdateIvan")
-                .login("First")
-                .email("practicum1@mail.ru")
-                .birthday(LocalDate.of(1980, 12, 23))
-                .build();
+        updateUser = userStorage.create(updateUser);
         Optional<User> testUpdateUser = Optional.ofNullable(userStorage.update(updateUser));
         assertThat(testUpdateUser)
                 .hasValueSatisfying(user -> assertThat(user)
@@ -164,14 +177,7 @@ class FilmoRateApplicationTests {
     @Test
     public void testUpdateFilm() {
         firstFilm = filmStorage.create(firstFilm);
-        Film updateFilm = Film.builder()
-                .id(firstFilm.getId())
-                .name("UpdateName")
-                .description("UpdateDescription")
-                .releaseDate(LocalDate.of(1975, 11, 19))
-                .duration(133)
-                .build();
-        updateFilm.setMpa(new Mpa(1, "G"));
+        updateFilm = filmStorage.create(updateFilm);
         Optional<Film> testUpdateFilm = Optional.ofNullable(filmStorage.update(updateFilm));
         assertThat(testUpdateFilm)
                 .hasValueSatisfying(film ->

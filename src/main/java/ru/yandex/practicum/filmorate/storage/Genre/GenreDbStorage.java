@@ -13,6 +13,11 @@ import java.util.List;
 @Slf4j
 @Component
 public class GenreDbStorage implements GenreStorage {
+
+    public static final int GENRE_MIN_ID = 1;
+    public static final int GENRE_MAX_ID = 6;
+
+
     private final JdbcTemplate jdbcTemplate;
 
     public GenreDbStorage(JdbcTemplate jdbcTemplate) {
@@ -35,7 +40,7 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public Genre getGenreById(Integer genreId) {
-        if (genreId < 1 || genreId > 6) {
+        if (genreId < GENRE_MIN_ID || genreId > GENRE_MAX_ID) {
             throw new NotFoundException("Жанра с таким ID нет");
         }
         SqlRowSet genreRows = jdbcTemplate.queryForRowSet("SELECT * FROM genres WHERE genre_id = ?", genreId);

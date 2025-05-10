@@ -2,43 +2,35 @@ package ru.yandex.practicum.filmorate.service.User;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.User.UserStorage;
 
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    @Qualifier("UserDbStorage")
     private final UserStorage userStorage;
 
     @Override
     public void addFriend(int userId, int friendId) {
-        User userToAddFriend = userStorage.getUserById(userId);
-        User friendToAddUser = userStorage.getUserById(friendId);
-        userToAddFriend.getFriendsIds().add(friendId);
-        friendToAddUser.getFriendsIds().add(userId);
+        userStorage.addFriend(userId, friendId);
+        log.info("Добавили друга пользователю с ID: {}", userId);
     }
 
     @Override
     public void deleteFriend(int userId, int friendId) {
-        User user = userStorage.getUserById(userId);
-        user.getFriendsIds().remove(friendId);
-        User friend = userStorage.getUserById(friendId);
-        friend.getFriendsIds().remove(userId);
+        userStorage.deleteFriend(userId, friendId);
+        log.info("Удалили друга у пользователя с ID: {}", userId);
     }
 
     @Override
     public List<User> getFriends(int userId) {
-        User user = userStorage.getUserById(userId);
-        List<User> friends = new ArrayList<>();
-        for (Integer id : user.getFriendsIds()) {
-            friends.add(userStorage.getUserById(id));
-        }
-        return friends;
+        log.info("Получили друга с ID: {}", userId);
+        return userStorage.getFriends(userId);
     }
 
     //вывод списка общих друзей
@@ -58,24 +50,31 @@ public class UserServiceImpl implements UserService {
 
         // Находим пересечение множеств (общих друзей)
         firstUserFriends.retainAll(secondUserFriends);
-
+        log.info("Вернули список всех пользователей общих друзей");
         return new ArrayList<>(firstUserFriends);
     }
 
     @Override
     public Collection<User> findAll() {
+        log.info("Вернули список всех пользователей");
         return userStorage.findAll();
     }
 
     @Override
     public User create(@Valid User user) {
-        user = userStorage.create(user);
-        return user;
+        log.info("Создан/добавлен пользователь user: {}", user);
+        return userStorage.create(user);
     }
 
     @Override
     public User update(@Valid User user) {
-        user = userStorage.update(user);
-        return user;
+        log.info("Обновлен пользователь user: {}", user);
+        return userStorage.update(user);
+    }
+
+    public void deleteUser(int id) {
+        User user = userStorage.getUserById(id);
+        userStorage.deleteUser(id);
+        log.info("Удален пользователь user: {}", user);
     }
 }

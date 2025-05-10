@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.Genre.GenreService;
 
-import javax.security.auth.login.AccountNotFoundException;
 import java.util.List;
 
 @RestController
@@ -31,7 +30,7 @@ public class GenreController {
 
 
     @GetMapping("/{id}")
-    public Genre getGenreById(@PathVariable Integer id) throws AccountNotFoundException {
+    public Genre getGenreById(@PathVariable Integer id) {
         log.info("Получен GET-запрос к эндпоинту: '/genres' на получение жанра с ID={}", id);
         return genreService.getGenre(id);
     }

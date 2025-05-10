@@ -18,4 +18,6 @@ public interface FilmService {
     Film update(Film newFilm);
 
     void delete(int id);
+
+    public Film getFilmById(int filmId);
 }
