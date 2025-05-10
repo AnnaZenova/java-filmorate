@@ -14,8 +14,8 @@ import java.util.List;
 @Component
 public class MpaDbStorage implements MpaStorage {
 
-    public static final int MPAMINID = 1;
-    public static final int MPAMAXID = 5;
+    public static final int mpaMINID = 1;
+    public static final int mpaMAXID = 5;
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -36,7 +36,7 @@ public class MpaDbStorage implements MpaStorage {
 
     @Override
     public Mpa getMpa(Integer mpaId) {
-        if (mpaId < MPAMINID || mpaId > MPAMAXID) {
+        if (mpaId < mpaMINID || mpaId > mpaMAXID) {
             throw new NotFoundException("Рейтинга с таким ID нет");
         }
         SqlRowSet mpaRows = jdbcTemplate.queryForRowSet("SELECT * FROM mpa WHERE mpa_id = ?", mpaId);

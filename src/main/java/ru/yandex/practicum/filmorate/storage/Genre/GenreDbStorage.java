@@ -14,8 +14,8 @@ import java.util.List;
 @Component
 public class GenreDbStorage implements GenreStorage {
 
-    public static final int GENREMINID = 1;
-    public static final int GENREMAXID = 6;
+    public static final int genreMINID = 1;
+    public static final int genreMAXID = 6;
 
 
     private final JdbcTemplate jdbcTemplate;
@@ -40,7 +40,7 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public Genre getGenreById(Integer genreId) {
-        if (genreId < GENREMINID || genreId > GENREMAXID) {
+        if (genreId < genreMINID || genreId > genreMAXID) {
             throw new NotFoundException("Жанра с таким ID нет");
         }
         SqlRowSet genreRows = jdbcTemplate.queryForRowSet("SELECT * FROM genres WHERE genre_id = ?", genreId);
