@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Repository("FilmDbStorage")
 public class FilmDbStorage implements FilmStorage {
 
-    private final static LocalDate RELEASE_DATE_MIN_DATE = LocalDate.of(1895, 12, 28);
+    private static final LocalDate RELEASE_DATE_MIN_DATE = LocalDate.of(1895, 12, 28);
 
     private MpaDbStorage mpaDbStorage;
 

@@ -14,8 +14,8 @@ import java.util.List;
 @Component
 public class MpaDbStorage implements MpaStorage {
 
-    public final static int MPA_MIN_ID = 1;
-    public final static int MPA_MAX_ID = 5;
+    public static final int MPA_MIN_ID = 1;
+    public static final int MPA_MAX_ID = 5;
 
     private final JdbcTemplate jdbcTemplate;
 
