@@ -37,7 +37,7 @@ public class FilmController {
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     public Film create(@RequestBody @Valid Film film) {
         log.info("Получен POST-запрос к эндпоинту: '/films' на добавление фильма");
         film = filmService.create(film);

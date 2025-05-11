@@ -56,8 +56,7 @@ public class UserController {
     @PostMapping
     public User create(@RequestBody @Valid User user) {
         log.info("Получен POST-запрос к эндпоинту: '/users' на добавление пользователя");
-        user = userService.create(user);
-        return user;
+        return userService.create(user);
     }
 
     @PutMapping

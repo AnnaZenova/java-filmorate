@@ -92,6 +92,7 @@ public class FilmServiceImpl implements FilmService {
         filmStorage.delete(id);
     }
 
+    @Override
     public Film getFilmById(int filmId) {
         return filmStorage.getFilmById(filmId);
     }

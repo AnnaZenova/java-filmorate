@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
 @Repository("FilmDbStorage")
 public class FilmDbStorage implements FilmStorage {
 
-    private final LocalDate releaseDATEMINDATE = LocalDate.of(1895, 12, 28);
+    private final static LocalDate RELEASE_DATE_MIN_DATE = LocalDate.of(1895, 12, 28);
 
-    MpaDbStorage mpaDbStorage;
+    private MpaDbStorage mpaDbStorage;
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -180,10 +180,10 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private boolean isValidFilm(Film film) {
-        if (film.getReleaseDate().isBefore(releaseDATEMINDATE)) {
+        if (film.getReleaseDate().isBefore(RELEASE_DATE_MIN_DATE)) {
             throw new WrongDataException("Некорректная дата релиза фильма: " + film.getReleaseDate());
         }
-        if (film.getMpa().getMpaId() < mpaDbStorage.mpaMINID || film.getMpa().getMpaId() > mpaDbStorage.mpaMAXID) {
+        if (film.getMpa().getMpaId() < mpaDbStorage.MPA_MIN_ID || film.getMpa().getMpaId() > mpaDbStorage.MPA_MAX_ID) {
             throw new NotFoundException("MPA ID должен быть от 1 до 5");
         }
         for (Genre genre : film.getGenres()) {

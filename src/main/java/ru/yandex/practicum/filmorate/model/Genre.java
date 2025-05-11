@@ -7,11 +7,15 @@ import lombok.Data;
 
     @Data
     @Builder
-    @AllArgsConstructor
     public class Genre {
         @JsonProperty("id")
         private final Integer genreId;
         @JsonProperty("name")
         private final String genreName;
+
+        public Genre(Integer genreId, String genreName) {
+            this.genreId = genreId;
+            this.genreName = genreName;
+        }
     }
 
