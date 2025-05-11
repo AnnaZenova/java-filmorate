@@ -1,12 +1,11 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.service.Film;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface FilmService {
-    Collection<Film> findAll();
+    List<Film> findAll();
 
     void addLike(int filmId, int userId);
 
@@ -19,4 +18,6 @@ public interface FilmService {
     Film update(Film newFilm);
 
     void delete(int id);
+
+    Film getFilmById(int filmId);
 }

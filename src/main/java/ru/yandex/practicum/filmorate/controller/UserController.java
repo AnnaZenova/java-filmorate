@@ -1,24 +1,26 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.User.UserService;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @Slf4j
-@RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
-    private final Map<Integer, User> users = new HashMap<>();
     private final UserService userService;
+
+    @Autowired
+    public UserController(
+            UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping
     public Collection<User> findAll() {
@@ -54,8 +56,7 @@ public class UserController {
     @PostMapping
     public User create(@RequestBody @Valid User user) {
         log.info("Получен POST-запрос к эндпоинту: '/users' на добавление пользователя");
-        user = userService.create(user);
-        return user;
+        return userService.create(user);
     }
 
     @PutMapping
@@ -63,6 +64,12 @@ public class UserController {
         log.info("Получен PUT-запрос к эндпоинту: '/users' на обновление user");
         user = userService.update(user);
         return user;
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable int id) {
+        log.info("Получен DELETE-запрос к эндпоинту: '/users' на удаление пользователя с ID={}", id);
+        userService.deleteUser(id);
     }
 }
 
