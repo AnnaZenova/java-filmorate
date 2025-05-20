@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.service.User;
 
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -19,4 +19,6 @@ public interface UserService {
     User create(User user);
 
     User update(User user);
+
+    void deleteUser(int id);
 }
