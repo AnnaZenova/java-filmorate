@@ -62,8 +62,7 @@ public class UserController {
     @PutMapping
     public User update(@RequestBody @Valid User user) {
         log.info("Получен PUT-запрос к эндпоинту: '/users' на обновление user");
-        user = userService.update(user);
-        return user;
+        return userService.update(user);
     }
 
     @DeleteMapping("/{id}")

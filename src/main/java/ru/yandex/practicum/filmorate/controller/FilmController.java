@@ -40,16 +40,14 @@ public class FilmController {
     @ResponseStatus(HttpStatus.CREATED)
     public Film create(@RequestBody @Valid Film film) {
         log.info("Получен POST-запрос к эндпоинту: '/films' на добавление фильма");
-        film = filmService.create(film);
-        return film;
+        return filmService.create(film);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public Film update(@RequestBody @Valid Film newFilm) {
         log.info("Получен PUT-запрос к эндпоинту: '/films' на обновление фильма");
-        newFilm = filmService.update(newFilm);
-        return newFilm;
+        return filmService.update(newFilm);
     }
 
     @PutMapping("/{id}/like/{userId}")
