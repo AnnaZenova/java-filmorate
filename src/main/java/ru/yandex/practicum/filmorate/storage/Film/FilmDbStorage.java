@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.Film;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -10,7 +11,6 @@ import ru.yandex.practicum.filmorate.exceptions.WrongDataException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.storage.Mpa.MpaDbStorage;
 
 import java.sql.*;
@@ -181,15 +181,17 @@ public class FilmDbStorage implements FilmStorage {
     // Получаем уникальный список фильмов которые "лайкал" пользователь.
     @Override
     public Set<Integer> findFilmsLikedByUser(int userId) {
+        log.debug("Получение списка фильмов, которым поставил лайки пользователь с ID: {}", userId);
         String sql = "SELECT film_id FROM likes_vs_film WHERE user_id = ?";
-        log.info("Получение списка фильмов, которым поставил лайки пользователь с ID: {}", userId);
         List<Integer> filmIds = jdbcTemplate.queryForList(sql, Integer.class, userId);
         return new HashSet<>(filmIds);
     }
 
     @Override
     public Map<Integer, Integer> getCommonLikes(int userId) {
-        /** В запросе склеиваем две таблицы лайков и фильмов - по фильмам. Фильтруем пользователей на одинаковые id
+        log.debug("Получение таблицы с id пользователя и количеством пересечений.");
+
+        /** В запросе склеиваем две таблицы лайков-фильмов по фильмам. Фильтруем пользователей на одинаковые id
          * группируем по user_id и подсчитываем кол-во. */
         String sql = "SELECT l2.user_id AS another_user, COUNT(*) AS count_common_likes" +
                 "FROM likes_vs_film AS l1" +
@@ -197,6 +199,7 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE l1.user_id = ? AND l2.user_id != ?" +
                 "GROUP BY l1.user_id";
 
+        // Заполняем таблицу Ключ: id пользователя, который пересекается лайком с user_id. Значение: кол-во пересечений.
         Map<Integer, Integer> commonLikes = jdbcTemplate.query(sql,
                 rs -> {
                     Map<Integer, Integer> result = new HashMap<>();
