@@ -6,10 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.Film.FilmStorage;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -39,7 +36,8 @@ public class RecommendationServiceImp implements RecommendationService {
 
         // Находим максимальное количество пересечений
         Collection<Integer> countLikes = commonLikesCount.values();
-        
+        int maxCount = Collections.max(countLikes);
+
 
         return List.of();
     }
