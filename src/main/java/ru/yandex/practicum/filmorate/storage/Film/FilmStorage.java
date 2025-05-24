@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.storage.Film;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface FilmStorage {
     List<Film> findAll();
@@ -16,4 +18,9 @@ public interface FilmStorage {
     void delete(int filmId);
 
     void putLikeToFilm(int filmId, int userId);
+
+    Set<Integer> findFilmsLikedByUser(int userId);
+
+    // Ключ id юзера, значение - количество пересечений.
+    Map<Integer, Integer> getCommonLikes(int userId);
 }

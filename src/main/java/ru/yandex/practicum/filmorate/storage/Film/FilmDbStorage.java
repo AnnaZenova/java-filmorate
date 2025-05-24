@@ -14,10 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.storage.Mpa.MpaDbStorage;
 
 import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -177,6 +176,39 @@ public class FilmDbStorage implements FilmStorage {
                 return validGenres.size();
             }
         });
+    }
+
+    // Получаем уникальный список фильмов которые "лайкал" пользователь.
+    @Override
+    public Set<Integer> findFilmsLikedByUser(int userId) {
+        String sql = "SELECT film_id FROM likes_vs_film WHERE user_id = ?";
+        log.info("Получение списка фильмов, которым поставил лайки пользователь с ID: {}", userId);
+        List<Integer> filmIds = jdbcTemplate.queryForList(sql, Integer.class, userId);
+        return new HashSet<>(filmIds);
+    }
+
+    @Override
+    public Map<Integer, Integer> getCommonLikes(int userId) {
+        /** В запросе склеиваем две таблицы лайков и фильмов - по фильмам. Фильтруем пользователей на одинаковые id
+         * группируем по user_id и подсчитываем кол-во. */
+        String sql = "SELECT l2.user_id AS another_user, COUNT(*) AS count_common_likes" +
+                "FROM likes_vs_film AS l1" +
+                "JOIN likes_vs_film AS l2 ON l1.film_id = l2.film_id" +
+                "WHERE l1.user_id = ? AND l2.user_id != ?" +
+                "GROUP BY l1.user_id";
+
+        Map<Integer, Integer> commonLikes = jdbcTemplate.query(sql,
+                rs -> {
+                    Map<Integer, Integer> result = new HashMap<>();
+                    while (rs.next()) {
+                        int anotherUserId = rs.getInt("another_user");
+                        int countCommonLikes = rs.getInt("count_common_likes");
+                        result.put(anotherUserId, countCommonLikes);
+                    }
+                    return result;
+                }, userId, userId);
+
+        return commonLikes;
     }
 
     private boolean isValidFilm(Film film) {
