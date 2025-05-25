@@ -1,5 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
-import jakarta.validation.constraints.*;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,8 +32,15 @@ public class Film {
     private final Set<Genre> genres = new HashSet<>();
     @NotNull
     private Mpa mpa;
+    @NotNull
+    private final Set<Director> directors = new HashSet<>();
 
-    public Film(int id, String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa) {
+    public Film(int id,
+                String name,
+                String description,
+                LocalDate releaseDate,
+                Integer duration,
+                Mpa mpa) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -51,5 +62,16 @@ public class Film {
         });
         genres.clear();
         genres.addAll(genresList);
+    }
+
+    public void setDirectors(List<Director> directorsList) {
+        directorsList.sort(new Comparator<Director>() {
+            @Override
+            public int compare(Director o1, Director o2) {
+                return o1.getDirectorId() - o2.getDirectorId();
+            }
+        });
+        directors.clear();
+        directors.addAll(directorsList);
     }
 }
