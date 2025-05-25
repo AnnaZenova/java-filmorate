@@ -27,21 +27,21 @@ public class ReviewController {
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public Review update(@RequestBody Review newReview){
+    public Review update(@RequestBody Review newReview) {
         log.info("Получен PUT-запрос к эндпоинту: '/reviews' на редактирование отзыва");
         return reviewService.update(newReview);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void delete(@PathVariable int id){
+    public void delete(@PathVariable int id) {
         log.info("Получен DELETE-запрос к эндпоинту: '/reviews/{id}' на удаление отзыва");
         reviewService.delete(id);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Review getReviewById(@PathVariable int id){
+    public Review getReviewById(@PathVariable int id) {
         log.info("Получен GET-запрос к эндпоинту: '/reviews/{id}' на получение отзыва");
         return reviewService.getReviewById(id);
     }
@@ -58,30 +58,30 @@ public class ReviewController {
 
     @PutMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public void userLikesReview(@PathVariable int id, @PathVariable int userId){
+    public void userLikesReview(@PathVariable int id, @PathVariable int userId) {
         log.info("Получен PUT-запрос к эндпоинту: '/reviews/{id}/dislike/{userId}' " +
-                + userId + "- пользователь лайкает отзыв " + id);
+                +userId + "- пользователь лайкает отзыв " + id);
         reviewService.userLikesReview(id, userId);
     }
 
     @PutMapping("/{id}/dislike/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public void userDislikesReview(@PathVariable int id, @PathVariable int userId){
+    public void userDislikesReview(@PathVariable int id, @PathVariable int userId) {
         log.info("Получен PUT-запрос к эндпоинту: '/reviews/{id}/dislike/{userId}' " +
-                + userId + "- пользователь дизлайкает отзыв " + id);
+                +userId + "- пользователь дизлайкает отзыв " + id);
         reviewService.userDislikesReview(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteUsersLike(@PathVariable int id, @PathVariable int userId){
+    public void deleteUsersLike(@PathVariable int id, @PathVariable int userId) {
         log.info("Получен DELETE-запрос к эндпоинту: '/reviews/{id}/like/{userId}' - пользователь удаляет лайк отзыву");
         reviewService.deleteUsersLike(id, userId);
     }
 
     @DeleteMapping("/{id}/dislike/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteUsersDislike(@PathVariable int id, @PathVariable int userId){
+    public void deleteUsersDislike(@PathVariable int id, @PathVariable int userId) {
         log.info("Получен DELETE-запрос к эндпоинту: '/reviews/{id}/like/{userId}' - пользователь удаляет дизлайк отзыву");
         reviewService.deleteUsersDislike(id, userId);
     }
