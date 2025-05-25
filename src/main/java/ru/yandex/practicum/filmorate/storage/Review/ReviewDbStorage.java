@@ -78,9 +78,9 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     @Transactional
-    public List<Review> getReviewByFilmId(int film_id, int count) {
+    public List<Review> getReviewByFilmId(int filmId, int count) {
         String sql = "SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC LIMIT ?";
-        return jdbcTemplate.query(sql, this::mapRowToReview, film_id, count);
+        return jdbcTemplate.query(sql, this::mapRowToReview, filmId, count);
     }
 
     @Override
