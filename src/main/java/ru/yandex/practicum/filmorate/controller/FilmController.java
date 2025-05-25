@@ -92,5 +92,13 @@ public class FilmController {
             throw new NotFoundException("Параметр sortBy должен быть 'year' или 'likes'");
         }
     }
+
+    @GetMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getFilmsByDirector(@RequestParam(required = false) String query,
+                                         @RequestParam(defaultValue = "title") String by) {
+        log.info("Получен GET-запрос к эндпоинту: '/films/search' на получение фильмов по названию и режиссёру");
+        return filmService.search(query, by);
+    }
 }
 

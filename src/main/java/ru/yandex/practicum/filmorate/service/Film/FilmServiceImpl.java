@@ -106,4 +106,21 @@ public class FilmServiceImpl implements FilmService {
     public List<Film> getFilmsByDirectorSortedByLikes(Integer directorId) {
         return filmStorage.getFilmsByDirectorSortedByLikes(directorId);
     }
+
+    @Override
+    public List<Film> search(String query, String by) {
+        query = "%" + query + "%";
+        String[] bySplited = by.split(",");
+        if (bySplited.length == 1 && bySplited[0].equals("director")) {
+            return filmStorage.getFilmsWithQueryAndDirectorName(query);
+        } else if (bySplited.length == 1 && bySplited[0].equals("title")) {
+            return filmStorage.getFilmsWithQueryAndFilmName(query);
+        } else if (bySplited.length == 2 && (
+                (bySplited[0].equals("title") && bySplited[1].equals("director")) ||
+                        (bySplited[0].equals("director") && bySplited[1].equals("title")))) {
+            return filmStorage.getFilmsWithQueryAndFilmPlusDirector(query);
+        } else {
+            return new ArrayList<>();
+        }
+    }
 }
