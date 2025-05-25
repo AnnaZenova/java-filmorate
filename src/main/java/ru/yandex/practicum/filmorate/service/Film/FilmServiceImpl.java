@@ -96,4 +96,14 @@ public class FilmServiceImpl implements FilmService {
     public Film getFilmById(int filmId) {
         return filmStorage.getFilmById(filmId);
     }
+
+    @Override
+    public List<Film> getFilmsByDirectorSortedByYear(Integer directorId) {
+        return filmStorage.getFilmsByDirectorSortedByYear(directorId);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorSortedByLikes(Integer directorId) {
+        return filmStorage.getFilmsByDirectorSortedByLikes(directorId);
+    }
 }
