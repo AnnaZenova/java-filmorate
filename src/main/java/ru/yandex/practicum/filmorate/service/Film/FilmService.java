@@ -20,4 +20,8 @@ public interface FilmService {
     void delete(int id);
 
     Film getFilmById(int filmId);
+
+    List<Film> getFilmsByDirectorSortedByYear(Integer directorId);
+
+    List<Film> getFilmsByDirectorSortedByLikes(Integer directorId);
 }

@@ -1,11 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.service.Film.FilmService;
 
 import java.util.Collection;
@@ -76,6 +77,20 @@ public class FilmController {
     public Film getFilmById(@PathVariable int id) {
         log.info("Получен GET-запрос к эндпоинту: '/films' на получение фильмов c ID={}", id);
         return filmService.getFilmById(id);
+    }
+
+    @GetMapping("/director/{directorId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getFilmsByDirector(@PathVariable("directorId") int directorId,
+                                         @RequestParam(defaultValue = "year") String sortBy) {
+        log.info("Получен GET-запрос к эндпоинту: '/films' на получение фильмов режиссёра c ID={}", directorId);
+        if (sortBy.equals("year")) {
+            return filmService.getFilmsByDirectorSortedByYear(directorId);
+        } else if (sortBy.equals("likes")) {
+            return filmService.getFilmsByDirectorSortedByLikes(directorId);
+        } else {
+            throw new NotFoundException("Параметр sortBy должен быть 'year' или 'likes'");
+        }
     }
 }
 
