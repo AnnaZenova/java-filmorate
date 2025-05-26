@@ -82,6 +82,7 @@ public class FilmServiceImpl implements FilmService {
         filmStorage.delete(id);
     }
 
+    @Override
     public Film getFilmById(int filmId) {
         return filmStorage.getFilmById(filmId);
     }
@@ -96,5 +97,15 @@ public class FilmServiceImpl implements FilmService {
             throw new NotFoundException("Пользователь с ID=" + friendId + " не найден");
         }
         return filmStorage.findCommonFilms(userId, friendId);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorSortedByYear(Integer directorId) {
+        return filmStorage.getFilmsByDirectorSortedByYear(directorId);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorSortedByLikes(Integer directorId) {
+        return filmStorage.getFilmsByDirectorSortedByLikes(directorId);
     }
 }
