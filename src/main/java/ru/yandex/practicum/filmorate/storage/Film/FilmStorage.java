@@ -19,7 +19,7 @@ public interface FilmStorage {
 
     void putLikeToFilm(int filmId, int userId);
 
-    Set<Integer> findFilmsLikedByUser(int userId);
+    List<Integer> findFilmsLikedByUser(int userId);
 
     // Ключ id юзера, значение - количество пересечений.
     Map<Integer, Integer> getCommonLikes(int userId);

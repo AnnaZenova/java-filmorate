@@ -180,33 +180,33 @@ public class FilmDbStorage implements FilmStorage {
 
     // Получаем уникальный список фильмов которые "лайкал" пользователь.
     @Override
-    public Set<Integer> findFilmsLikedByUser(int userId) {
+    public List<Integer> findFilmsLikedByUser(int userId) {
         log.debug("Получение списка фильмов, которым поставил лайки пользователь с ID: {}", userId);
         String sql = "SELECT film_id FROM likes_vs_film WHERE user_id = ?";
         List<Integer> filmIds = jdbcTemplate.queryForList(sql, Integer.class, userId);
-        return new HashSet<>(filmIds);
+        return new ArrayList<>(filmIds);
     }
 
     @Override
     public Map<Integer, Integer> getCommonLikes(int userId) {
         log.debug("Получение таблицы с id пользователя и количеством пересечений.");
 
-        /** В запросе склеиваем две таблицы лайков-фильмов по фильмам. Фильтруем пользователей на одинаковые id
-         * группируем по user_id и подсчитываем кол-во. */
-        String sql = "SELECT l2.user_id AS another_user, COUNT(*) AS count_common_likes" +
+        /** В запросе склеиваем две таблицы лайков по film_id. Убираем одинаковые user_id в обеих колонках после склейки.
+         * группируем по user_id второй итоговой колонки и подсчитываем кол-во. */
+        String sql = "SELECT COUNT(*), l2.user_id AS another_user AS count_common_likes" +
                 "FROM likes_vs_film AS l1" +
                 "JOIN likes_vs_film AS l2 ON l1.film_id = l2.film_id" +
                 "WHERE l1.user_id = ? AND l2.user_id != ?" +
                 "GROUP BY l1.user_id";
 
-        // Заполняем таблицу Ключ: id пользователя, который пересекается лайком с user_id. Значение: кол-во пересечений.
+        // Заполняем таблицу Ключ: Кол-во пересечений, с user_id. Значение: user_id пересекающихся по лайкам пользователей.
         Map<Integer, Integer> commonLikes = jdbcTemplate.query(sql,
                 rs -> {
                     Map<Integer, Integer> result = new HashMap<>();
                     while (rs.next()) {
                         int anotherUserId = rs.getInt("another_user");
                         int countCommonLikes = rs.getInt("count_common_likes");
-                        result.put(anotherUserId, countCommonLikes);
+                        result.put(countCommonLikes, anotherUserId);
                     }
                     return result;
                 }, userId, userId);
