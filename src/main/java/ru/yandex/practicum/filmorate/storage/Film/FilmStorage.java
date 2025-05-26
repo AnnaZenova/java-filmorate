@@ -4,7 +4,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public interface FilmStorage {
     List<Film> findAll();
@@ -21,6 +20,5 @@ public interface FilmStorage {
 
     List<Integer> findFilmsLikedByUser(int userId);
 
-    // Ключ id юзера, значение - количество пересечений.
     Map<Integer, Integer> getCommonLikes(int userId);
 }

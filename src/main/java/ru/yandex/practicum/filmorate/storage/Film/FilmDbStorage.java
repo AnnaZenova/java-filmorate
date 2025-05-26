@@ -192,12 +192,12 @@ public class FilmDbStorage implements FilmStorage {
         log.debug("Получение таблицы с id пользователя и количеством пересечений.");
 
         /** В запросе склеиваем две таблицы лайков по film_id. Убираем одинаковые user_id в обеих колонках после склейки.
-         * группируем по user_id второй итоговой колонки и подсчитываем кол-во. */
-        String sql = "SELECT COUNT(*), l2.user_id AS another_user AS count_common_likes" +
-                "FROM likes_vs_film AS l1" +
-                "JOIN likes_vs_film AS l2 ON l1.film_id = l2.film_id" +
-                "WHERE l1.user_id = ? AND l2.user_id != ?" +
-                "GROUP BY l1.user_id";
+         группируем по user_id второй итоговой колонки и подсчитываем кол-во. */
+        String sql = "SELECT COUNT(*) AS count_common_likes, l2.user_id AS another_user " +
+                "FROM likes_vs_film AS l1 " +
+                "JOIN likes_vs_film AS l2 ON l1.film_id = l2.film_id " +
+                "WHERE l1.user_id = ? AND l2.user_id != ? " +
+                "GROUP BY l2.user_id";
 
         // Заполняем таблицу Ключ: Кол-во пересечений, с user_id. Значение: user_id пересекающихся по лайкам пользователей.
         Map<Integer, Integer> commonLikes = jdbcTemplate.query(sql,

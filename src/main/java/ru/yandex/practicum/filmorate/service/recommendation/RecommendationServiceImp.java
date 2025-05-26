@@ -30,22 +30,22 @@ public class RecommendationServiceImp implements RecommendationService {
         }
 
         // Находим максимальное количество пересечений
-        int maxCommonCount = Collections.max(commonLikesCount.values());
+        int maxCommonCount = Collections.max(commonLikesCount.keySet());
 
-        // Пользователей с одинаковым кол-вом пересечений может быть несколько.
-        List<Integer> commonUsersByLikes =  commonLikesCount.entrySet().stream()
+        // Пользователей с одинаковым кол-вом пересечений может быть несколько. Получаем id пересекаемых пользователей.
+        List<Integer> commonUsersByLikes = commonLikesCount.entrySet().stream()
                 .filter(entry -> entry.getKey() == maxCommonCount)
                 .map(Map.Entry::getValue)
                 .toList();
         log.debug("Список пересекаемых пользователей получен.");
 
-        // Находим все фильмы пересекающихся пользователей, которые не были лайкнуты у самого пользователя.
+        // Получаем все фильмы которым пользователь ставил лайки.
         List<Integer> filmsLikedByUsers = filmStorage.findFilmsLikedByUser(userId);
 
         // Пробегаемся по пересекаемым пользователям, получаем списки лайкнутых ими фильмов,
-        // сравниваем с фильмами пользователя, если лайка нет, то получаем фильма из таблицы по id и записываем в список.
-        List<Film> recommendationFilms =  commonUsersByLikes.stream()
-                .flatMap(id -> filmStorage.findFilmsLikedByUser(userId).stream())
+        // сравниваем с фильмами пользователя, если лайка нет, то получаем фильм из таблицы по id и записываем в итоговый список.
+        List<Film> recommendationFilms = commonUsersByLikes.stream()
+                .flatMap(id -> filmStorage.findFilmsLikedByUser(id).stream())
                 .filter(filmId -> !filmsLikedByUsers.contains(filmId))
                 .map(filmStorage::getFilmById)
                 .toList();
