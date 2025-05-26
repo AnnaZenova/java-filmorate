@@ -5,5 +5,5 @@ import ru.yandex.practicum.filmorate.model.Event;
 import java.util.List;
 
 public interface EventService {
-    public List<Event> getUserEvents(int userId);
+    List<Event> getUserEvents(int userId);
 }
