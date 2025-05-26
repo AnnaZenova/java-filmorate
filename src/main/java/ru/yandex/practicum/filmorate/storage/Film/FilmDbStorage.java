@@ -25,7 +25,7 @@ public class FilmDbStorage implements FilmStorage {
 
     private static final LocalDate RELEASE_DATE_MIN_DATE = LocalDate.of(1895, 12, 28);
 
-    private MpaDbStorage mpaDbStorage;
+    MpaDbStorage mpaDbStorage;
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -233,5 +233,35 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "SELECT COUNT(*) FROM films WHERE film_id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, filmId);
         return count != null && count > 0;
+    }
+
+    @Override
+    public List<Film> findCommonFilms(int userId, int friendId) {
+        String sql = "SELECT f.*, m.mpa_name, " +
+                "(SELECT COUNT(*) FROM likes_vs_film l WHERE l.film_id = f.film_id) AS likes_count " +
+                "FROM films f " +
+                "LEFT JOIN mpa m ON f.mpa_id = m.mpa_id " +
+                "WHERE f.film_id IN (" +
+                "   SELECT l1.film_id FROM likes_vs_film l1 WHERE l1.user_id = ? " +
+                "   INTERSECT " +
+                "   SELECT l2.film_id FROM likes_vs_film l2 WHERE l2.user_id = ? " +
+                ") " +
+                "ORDER BY likes_count DESC, f.film_name ASC";
+
+        return jdbcTemplate.query(sql, this::mapRowToFilm, userId, friendId);
+    }
+
+    @Override
+    public void deleteLike(int filmId, int userId) {
+        Film film = getFilmById(filmId);
+        if (film == null) {
+            throw new NotFoundException("Лайк от пользователя c ID=" + userId + " не найден!");
+        }
+        String sql = "DELETE FROM likes_vs_film WHERE film_id = ? AND user_id = ?";
+        int rowsDeleted = jdbcTemplate.update(sql, filmId, userId);
+        if (rowsDeleted == 0) {
+            throw new NotFoundException("Лайк/фильм не найден");
+        }
+        log.info("Удалён лайк пользователя {} у фильма {}", userId, filmId);
     }
 }
