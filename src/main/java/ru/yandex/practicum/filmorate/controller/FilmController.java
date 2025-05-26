@@ -101,7 +101,7 @@ public class FilmController {
         log.info("Получен GET-запрос к эндпоинту: '/films/search' на получение фильмов по названию и режиссёру");
         return filmService.search(query, by);
     }
-      
+
     @GetMapping("/common")
     @ResponseStatus(HttpStatus.OK)
     public List<Film> getCommonFilms(
