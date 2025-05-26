@@ -30,12 +30,12 @@ public class RecommendationServiceImp implements RecommendationService {
         }
 
         // Находим максимальное количество пересечений
-        int maxCommonCount = Collections.max(commonLikesCount.keySet());
+        int maxCommonCount = Collections.max(commonLikesCount.values());
 
         // Пользователей с одинаковым кол-вом пересечений может быть несколько. Получаем id пересекаемых пользователей.
         List<Integer> commonUsersByLikes = commonLikesCount.entrySet().stream()
-                .filter(entry -> entry.getKey() == maxCommonCount)
-                .map(Map.Entry::getValue)
+                .filter(entry -> entry.getValue() == maxCommonCount)
+                .map(Map.Entry::getKey)
                 .toList();
         log.debug("Список пересекаемых пользователей получен.");
 
