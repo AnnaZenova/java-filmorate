@@ -21,7 +21,7 @@ public class RecommendationServiceImp implements RecommendationService {
         log.info("Рекомендация фильмов для пользователя с ID:{}", userId);
 
         // Получаем пересечения по лайкам пользователя user_id с другими пользователями.
-        // key(кол-во пересечений), value(user_id)
+        // Ключ: user_id пересекающихся по лайкам пользователей. Значение: Кол-во пересечений, с user_id
         Map<Integer, Integer> commonLikesCount = filmStorage.getCommonLikes(userId);
 
         if (commonLikesCount.isEmpty()) {

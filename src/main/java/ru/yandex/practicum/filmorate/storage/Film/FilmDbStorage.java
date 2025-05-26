@@ -199,7 +199,7 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE l1.user_id = ? AND l2.user_id != ? " +
                 "GROUP BY l2.user_id";
 
-        // Заполняем таблицу Ключ: Кол-во пересечений, с user_id. Значение: user_id пересекающихся по лайкам пользователей.
+        // Заполняем таблицу Ключ: user_id пересекающихся по лайкам пользователей. Значение: Кол-во пересечений, с user_id
         Map<Integer, Integer> commonLikes = jdbcTemplate.query(sql,
                 rs -> {
                     Map<Integer, Integer> result = new HashMap<>();
