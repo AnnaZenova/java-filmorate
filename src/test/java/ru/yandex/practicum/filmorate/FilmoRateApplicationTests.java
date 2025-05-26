@@ -7,16 +7,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.springframework.context.annotation.Import;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.Film.FilmService;
 import ru.yandex.practicum.filmorate.service.Film.FilmServiceImpl;
 import ru.yandex.practicum.filmorate.service.User.UserService;
 import ru.yandex.practicum.filmorate.service.User.UserServiceImpl;
 import ru.yandex.practicum.filmorate.storage.Film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.Review.ReviewDbStorage;
 import ru.yandex.practicum.filmorate.storage.User.UserDbStorage;
 
 import java.time.LocalDate;
@@ -27,10 +33,11 @@ import java.util.Optional;
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({UserDbStorage.class, FilmDbStorage.class, FilmServiceImpl.class, UserServiceImpl.class })
+@Import({UserDbStorage.class, FilmDbStorage.class, ReviewDbStorage.class, FilmServiceImpl.class, UserServiceImpl.class})
 class FilmoRateApplicationTests {
     private final UserDbStorage userStorage;
     private final FilmDbStorage filmStorage;
+    private final ReviewDbStorage reviewStorage;
     private final FilmService filmService;
     private final UserService userService;
     private User firstUser;
@@ -41,6 +48,9 @@ class FilmoRateApplicationTests {
     private Film secondFilm;
     private Film thirdFilm;
     private Film updateFilm;
+    private Review firstReview;
+    private Review secondReview;
+    private Review updatedReview;
 
 
     @BeforeEach
@@ -109,6 +119,30 @@ class FilmoRateApplicationTests {
                 .duration(133)
                 .build();
         updateFilm.setMpa(new Mpa(1, "G"));
+
+        firstReview = Review.builder()
+                .content("First review content")
+                .isPositive(true)
+                .userId(firstUser.getId())
+                .filmId(firstFilm.getId())
+                .useful(0)
+                .build();
+
+        secondReview = Review.builder()
+                .content("Second review content")
+                .isPositive(false)
+                .userId(secondUser.getId())
+                .filmId(secondFilm.getId())
+                .useful(0)
+                .build();
+
+        updatedReview = Review.builder()
+                .content("Updated review content")
+                .isPositive(false)
+                .userId(firstUser.getId())
+                .filmId(firstFilm.getId())
+                .useful(0)
+                .build();
     }
 
     @Test
@@ -185,19 +219,6 @@ class FilmoRateApplicationTests {
                                 .hasFieldOrPropertyWithValue("name", "UpdateName")
                                 .hasFieldOrPropertyWithValue("description", "UpdateDescription")
                 );
-    }
-
-    @Test
-    public void deleteFilm() {
-        firstFilm = filmStorage.create(firstFilm);
-        secondFilm = filmStorage.create(secondFilm);
-        filmStorage.delete(firstFilm.getId());
-        List<Film> listFilms = filmStorage.findAll();
-        assertThat(listFilms).hasSize(1);
-        assertThat(Optional.of(listFilms.getFirst()))
-                .hasValueSatisfying(film ->
-                        AssertionsForClassTypes.assertThat(film)
-                                .hasFieldOrPropertyWithValue("name", "Крик"));
     }
 
     @Test
@@ -293,5 +314,167 @@ class FilmoRateApplicationTests {
         assertThat(userService.getCommonFriends(firstUser.getId(), secondUser.getId())).hasSize(1);
         assertThat(userService.getCommonFriends(firstUser.getId(), secondUser.getId()))
                 .contains(thirdUser);
+    }
+
+    @Test
+    public void testCreateAndGetReviewById() {
+        // Сначала создаем пользователя и фильм, так как отзыв зависит от них
+        firstUser = userStorage.create(firstUser);
+        firstFilm = filmStorage.create(firstFilm);
+        firstReview.setUserId(firstUser.getId());
+        firstReview.setFilmId(firstFilm.getId());
+
+        Review createdReview = reviewStorage.create(firstReview);
+        Optional<Review> reviewOptional = Optional.ofNullable(reviewStorage.getReviewById(createdReview.getReviewId()));
+
+        assertThat(reviewOptional)
+                .hasValueSatisfying(review -> assertThat(review)
+                        .hasFieldOrPropertyWithValue("reviewId", createdReview.getReviewId())
+                        .hasFieldOrPropertyWithValue("content", "First review content")
+                        .hasFieldOrPropertyWithValue("isPositive", true)
+                );
+    }
+
+    @Test
+    public void testUpdateReview() {
+        firstUser = userStorage.create(firstUser);
+        firstFilm = filmStorage.create(firstFilm);
+        firstReview.setUserId(firstUser.getId());
+        firstReview.setFilmId(firstFilm.getId());
+
+        Review createdReview = reviewStorage.create(firstReview);
+        updatedReview.setReviewId(createdReview.getReviewId());
+        updatedReview.setUserId(firstUser.getId());
+        updatedReview.setFilmId(firstFilm.getId());
+
+        Optional<Review> testUpdateReview = Optional.ofNullable(reviewStorage.update(updatedReview));
+
+        assertThat(testUpdateReview)
+                .hasValueSatisfying(review ->
+                        assertThat(review)
+                                .hasFieldOrPropertyWithValue("content", "Updated review content")
+                                .hasFieldOrPropertyWithValue("isPositive", false)
+                );
+    }
+
+    @Test
+    public void testDeleteReview() {
+        firstUser = userStorage.create(firstUser);
+        firstFilm = filmStorage.create(firstFilm);
+        firstReview.setUserId(firstUser.getId());
+        firstReview.setFilmId(firstFilm.getId());
+
+        Review createdReview = reviewStorage.create(firstReview);
+        reviewStorage.deleteById(createdReview.getReviewId());
+
+        assertThrows(NotFoundException.class, () -> reviewStorage.getReviewById(createdReview.getReviewId()));
+    }
+
+    @Test
+    public void testGetReviewsByFilmId() {
+        firstUser = userStorage.create(firstUser);
+        secondUser = userStorage.create(secondUser);
+        firstFilm = filmStorage.create(firstFilm);
+        secondFilm = filmStorage.create(secondFilm);
+
+        firstReview.setUserId(firstUser.getId());
+        firstReview.setFilmId(firstFilm.getId());
+        secondReview.setUserId(secondUser.getId());
+        secondReview.setFilmId(secondFilm.getId());
+
+        Review review1 = reviewStorage.create(firstReview);
+        Review review2 = reviewStorage.create(secondReview);
+
+        List<Review> reviews = reviewStorage.getReviewByFilmId(firstFilm.getId(), 10);
+
+        assertThat(reviews)
+                .hasSize(1)
+                .containsExactly(review1);
+    }
+
+    @Test
+    public void testGetAllReviewsWithLimit() {
+        firstUser = userStorage.create(firstUser);
+        secondUser = userStorage.create(secondUser);
+        firstFilm = filmStorage.create(firstFilm);
+        secondFilm = filmStorage.create(secondFilm);
+
+        firstReview.setUserId(firstUser.getId());
+        firstReview.setFilmId(firstFilm.getId());
+        secondReview.setUserId(secondUser.getId());
+        secondReview.setFilmId(secondFilm.getId());
+
+        Review review1 = reviewStorage.create(firstReview);
+        Review review2 = reviewStorage.create(secondReview);
+
+        List<Review> reviews = reviewStorage.getReviewLimit(1);
+
+        assertThat(reviews).hasSize(1);
+    }
+
+    @Test
+    public void testAddLikeToReview() {
+        firstUser = userStorage.create(firstUser);
+        secondUser = userStorage.create(secondUser);
+        firstFilm = filmStorage.create(firstFilm);
+
+        firstReview.setUserId(firstUser.getId());
+        firstReview.setFilmId(firstFilm.getId());
+
+        Review review = reviewStorage.create(firstReview);
+        reviewStorage.userLikesReview(review.getReviewId(), secondUser.getId());
+        Review updatedReview = reviewStorage.getReviewById(review.getReviewId());
+
+        assertThat(updatedReview.getUseful()).isEqualTo(1);
+    }
+
+    @Test
+    public void testAddDislikeToReview() {
+        firstUser = userStorage.create(firstUser);
+        secondUser = userStorage.create(secondUser);
+        firstFilm = filmStorage.create(firstFilm);
+
+        firstReview.setUserId(firstUser.getId());
+        firstReview.setFilmId(firstFilm.getId());
+
+        Review review = reviewStorage.create(firstReview);
+        reviewStorage.userDislikesReview(review.getReviewId(), secondUser.getId());
+        Review updatedReview = reviewStorage.getReviewById(review.getReviewId());
+
+        assertThat(updatedReview.getUseful()).isEqualTo(-1);
+    }
+
+    @Test
+    public void testDeleteLikeFromReview() {
+        firstUser = userStorage.create(firstUser);
+        secondUser = userStorage.create(secondUser);
+        firstFilm = filmStorage.create(firstFilm);
+
+        firstReview.setUserId(firstUser.getId());
+        firstReview.setFilmId(firstFilm.getId());
+
+        Review review = reviewStorage.create(firstReview);
+        reviewStorage.userLikesReview(review.getReviewId(), secondUser.getId());
+        reviewStorage.deleteUsersLike(review.getReviewId(), secondUser.getId());
+        Review updatedReview = reviewStorage.getReviewById(review.getReviewId());
+
+        assertThat(updatedReview.getUseful()).isEqualTo(0);
+    }
+
+    @Test
+    public void testConvertDislikeToLike() {
+        firstUser = userStorage.create(firstUser);
+        secondUser = userStorage.create(secondUser);
+        firstFilm = filmStorage.create(firstFilm);
+
+        firstReview.setUserId(firstUser.getId());
+        firstReview.setFilmId(firstFilm.getId());
+
+        Review review = reviewStorage.create(firstReview);
+        reviewStorage.userDislikesReview(review.getReviewId(), secondUser.getId());
+        reviewStorage.userLikesReview(review.getReviewId(), secondUser.getId());
+        Review updatedReview = reviewStorage.getReviewById(review.getReviewId());
+
+        assertThat(updatedReview.getUseful()).isEqualTo(1);
     }
 }

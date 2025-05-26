@@ -15,10 +15,9 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.Mpa.MpaDbStorage;
 
 import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -37,9 +36,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film create(Film film) {
-        System.out.println("start creating 1");
         isValidFilm(film);
-        System.out.println("start creating 2");
         KeyHolder keyHolder = new GeneratedKeyHolder();
         String sql = "INSERT INTO films (film_name, description, release_date, duration, mpa_id) " +
                 "VALUES (?, ?, ?, ?, ?)";
@@ -297,6 +294,42 @@ public class FilmDbStorage implements FilmStorage {
                 return validDirectors.size();
             }
         });
+    }
+
+    // Получаем уникальный список фильмов которые "лайкал" пользователь.
+    @Override
+    public List<Integer> findFilmsLikedByUser(int userId) {
+        log.debug("Получение списка фильмов, которым поставил лайки пользователь с ID: {}", userId);
+        String sql = "SELECT film_id FROM likes_vs_film WHERE user_id = ?";
+        List<Integer> filmIds = jdbcTemplate.queryForList(sql, Integer.class, userId);
+        return new ArrayList<>(filmIds);
+    }
+
+    @Override
+    public Map<Integer, Integer> getCommonLikes(int userId) {
+        log.debug("Получение таблицы с id пользователя и количеством пересечений.");
+
+        /** В запросе склеиваем две таблицы лайков по film_id. Убираем одинаковые user_id в обеих колонках после склейки.
+         группируем по user_id второй итоговой колонки и подсчитываем кол-во. */
+        String sql = "SELECT l2.user_id AS another_user, COUNT(*) AS count_common_likes " +
+                "FROM likes_vs_film AS l1 " +
+                "JOIN likes_vs_film AS l2 ON l1.film_id = l2.film_id " +
+                "WHERE l1.user_id = ? AND l2.user_id != ? " +
+                "GROUP BY l2.user_id";
+
+        // Заполняем таблицу Ключ: user_id пересекающихся по лайкам пользователей. Значение: Кол-во пересечений, с user_id
+        Map<Integer, Integer> commonLikes = jdbcTemplate.query(sql,
+                rs -> {
+                    Map<Integer, Integer> result = new HashMap<>();
+                    while (rs.next()) {
+                        int anotherUserId = rs.getInt("another_user");
+                        int countCommonLikes = rs.getInt("count_common_likes");
+                        result.put(anotherUserId, countCommonLikes);
+                    }
+                    return result;
+                }, userId, userId);
+
+        return commonLikes;
     }
 
     private boolean isValidFilm(Film film) {
