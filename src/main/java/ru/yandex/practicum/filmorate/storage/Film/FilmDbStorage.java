@@ -193,7 +193,7 @@ public class FilmDbStorage implements FilmStorage {
 
         /** В запросе склеиваем две таблицы лайков по film_id. Убираем одинаковые user_id в обеих колонках после склейки.
          группируем по user_id второй итоговой колонки и подсчитываем кол-во. */
-        String sql = "SELECT COUNT(*) AS count_common_likes, l2.user_id AS another_user " +
+        String sql = "SELECT l2.user_id AS another_user, COUNT(*) AS count_common_likes " +
                 "FROM likes_vs_film AS l1 " +
                 "JOIN likes_vs_film AS l2 ON l1.film_id = l2.film_id " +
                 "WHERE l1.user_id = ? AND l2.user_id != ? " +
@@ -206,7 +206,7 @@ public class FilmDbStorage implements FilmStorage {
                     while (rs.next()) {
                         int anotherUserId = rs.getInt("another_user");
                         int countCommonLikes = rs.getInt("count_common_likes");
-                        result.put(countCommonLikes, anotherUserId);
+                        result.put(anotherUserId, countCommonLikes);
                     }
                     return result;
                 }, userId, userId);
