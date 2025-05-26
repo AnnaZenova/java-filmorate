@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.WrongDataException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.Film.FilmService;
 
@@ -38,7 +39,7 @@ public class FilmController {
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     public Film create(@RequestBody @Valid Film film) {
         log.info("Получен POST-запрос к эндпоинту: '/films' на добавление фильма");
         return filmService.create(film);
@@ -99,6 +100,18 @@ public class FilmController {
                                          @RequestParam(defaultValue = "title") String by) {
         log.info("Получен GET-запрос к эндпоинту: '/films/search' на получение фильмов по названию и режиссёру");
         return filmService.search(query, by);
+      
+    @GetMapping("/common")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getCommonFilms(
+            @RequestParam int userId,
+            @RequestParam int friendId) {
+        if (userId == friendId) {
+            throw new WrongDataException("ID юзера должен отличаться от ID друга");
+        }
+        log.info("Получен GET-запрос к эндпоинту: '/films/common' на получение общих фильмов пользователей {} и {}",
+                userId, friendId);
+        return filmService.findCommonFilms(userId, friendId);
     }
 }
 
