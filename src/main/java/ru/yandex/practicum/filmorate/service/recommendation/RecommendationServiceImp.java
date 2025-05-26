@@ -9,8 +9,6 @@ import ru.yandex.practicum.filmorate.storage.Film.FilmStorage;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -19,7 +17,7 @@ public class RecommendationServiceImp implements RecommendationService {
     private final FilmStorage filmStorage;
 
     @Override
-    public List<Film> getRecommendations(int userId) {
+    public List<Film> getRecommendationsFilms(int userId) {
         log.info("Рекомендация фильмов для пользователя с ID:{}", userId);
 
         // Получаем пересечения по лайкам пользователя user_id с другими пользователями.
@@ -39,13 +37,19 @@ public class RecommendationServiceImp implements RecommendationService {
                 .filter(entry -> entry.getKey() == maxCommonCount)
                 .map(Map.Entry::getValue)
                 .toList();
+        log.debug("Список пересекаемых пользователей получен.");
 
         // Находим все фильмы пересекающихся пользователей, которые не были лайкнуты у самого пользователя.
         List<Integer> filmsLikedByUsers = filmStorage.findFilmsLikedByUser(userId);
 
-        
-
-
-        return List.of();
+        // Пробегаемся по пересекаемым пользователям, получаем списки лайкнутых ими фильмов,
+        // сравниваем с фильмами пользователя, если лайка нет, то получаем фильма из таблицы по id и записываем в список.
+        List<Film> recommendationFilms =  commonUsersByLikes.stream()
+                .flatMap(id -> filmStorage.findFilmsLikedByUser(userId).stream())
+                .filter(filmId -> !filmsLikedByUsers.contains(filmId))
+                .map(filmStorage::getFilmById)
+                .toList();
+        log.debug("Список рекомендуемых фильмов сформирован.");
+        return recommendationFilms;
     }
 }
