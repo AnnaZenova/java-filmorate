@@ -188,4 +188,3 @@ public class UserDbStorage implements UserStorage {
         return count != null && count > 0;
     }
 }
-
