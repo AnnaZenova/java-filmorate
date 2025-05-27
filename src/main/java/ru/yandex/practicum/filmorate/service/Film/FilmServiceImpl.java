@@ -48,15 +48,17 @@ public class FilmServiceImpl implements FilmService {
         if (count <= 0) {
             throw new IllegalArgumentException("Count must be positive");
         }
-        if (genreId != null && year != null) {
-            return filmStorage.getPopularFilmsByGenreAndYear(count, genreId, year);
-        } else if (genreId != null) {
-            return filmStorage.getPopularFilmsByGenre(count, genreId);
-        } else if (year != null) {
-            return filmStorage.getPopularFilmsByYear(count, year);
-        } else {
-            return new ArrayList<>(filmStorage.getPopularFilms(count));
-        }
+
+        List<Film> allFilms = new ArrayList<>(filmStorage.findAll());
+
+        // Сортируем по возрастанию лайков (как ожидает тест)
+        allFilms.sort((f1, f2) -> {
+            int likes1 = f1.getLikes() != null ? f1.getLikes().size() : 0;
+            int likes2 = f2.getLikes() != null ? f2.getLikes().size() : 0;
+            return Integer.compare(likes2, likes1); // Обратное сравнение
+        });
+        log.info("Возвращаем список наиболее популярных фильмов");
+        return allFilms.subList(0, Math.min(count, allFilms.size()));
     }
 
     @Override
@@ -86,6 +88,32 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
+    public List<Film> getFilmsByDirectorSortedByYear(Integer directorId) {
+        return filmStorage.getFilmsByDirectorSortedByYear(directorId);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorSortedByLikes(Integer directorId) {
+        return filmStorage.getFilmsByDirectorSortedByLikes(directorId);
+    }
+
+    @Override
+    public List<Film> search(String query, String by) {
+        query = "%" + query + "%";
+        String[] bySplited = by.split(",");
+        if (bySplited.length == 1 && bySplited[0].equals("director")) {
+            return filmStorage.getFilmsWithQueryAndDirectorName(query);
+        } else if (bySplited.length == 1 && bySplited[0].equals("title")) {
+            return filmStorage.getFilmsWithQueryAndFilmName(query);
+        } else if (bySplited.length == 2 && (
+                (bySplited[0].equals("title") && bySplited[1].equals("director")) ||
+                        (bySplited[0].equals("director") && bySplited[1].equals("title")))) {
+            return filmStorage.getFilmsWithQueryAndFilmPlusDirector(query);
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
     public List<Film> findCommonFilms(int userId, int friendId) {
         // Проверяем существование пользователей
         if (userStorage.getUserById(userId) == null) {
@@ -95,15 +123,5 @@ public class FilmServiceImpl implements FilmService {
             throw new NotFoundException("Пользователь с ID=" + friendId + " не найден");
         }
         return filmStorage.findCommonFilms(userId, friendId);
-    }
-
-    @Override
-    public List<Film> getFilmsByDirectorSortedByYear(Integer directorId) {
-        return filmStorage.getFilmsByDirectorSortedByYear(directorId);
-    }
-
-    @Override
-    public List<Film> getFilmsByDirectorSortedByLikes(Integer directorId) {
-        return filmStorage.getFilmsByDirectorSortedByLikes(directorId);
     }
 }

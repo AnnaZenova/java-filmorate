@@ -150,6 +150,46 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
     }
 
+    @Override
+    public List<Film> getFilmsWithQueryAndDirectorName(String query) {
+        String sql = "SELECT f.*, m.mpa_name " +
+                "FROM films AS f " +
+                "JOIN director_vs_film AS df ON f.film_id = df.film_id " +
+                "JOIN directors AS d ON df.director_id = d.director_id " +
+                "LEFT JOIN likes_vs_film as lf ON f.film_id = lf.film_id " +
+                "LEFT JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
+                "WHERE LOWER(d.director_name) LIKE LOWER(?) " +
+                "GROUP BY f.film_id " +
+                "ORDER BY COUNT(lf.film_id) DESC";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, query);
+    }
+
+    @Override
+    public List<Film> getFilmsWithQueryAndFilmName(String query) {
+        String sql = "SELECT f.*, m.mpa_name " +
+                "FROM films AS f " +
+                "LEFT JOIN likes_vs_film as lf ON f.film_id = lf.film_id " +
+                "LEFT JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
+                "WHERE LOWER(f.film_name) LIKE LOWER(?) " +
+                "GROUP BY f.film_id " +
+                "ORDER BY COUNT(lf.film_id) DESC";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, query);
+    }
+
+    @Override
+    public List<Film> getFilmsWithQueryAndFilmPlusDirector(String query) {
+        String sql = "SELECT f.*, m.mpa_name " +
+                "FROM films AS f " +
+                "LEFT JOIN director_vs_film AS df ON f.film_id = df.film_id " +
+                "LEFT JOIN directors AS d ON df.director_id = d.director_id " +
+                "LEFT JOIN likes_vs_film as lf ON f.film_id = lf.film_id " +
+                "LEFT JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
+                "WHERE LOWER(d.director_name) LIKE LOWER(?) OR LOWER(f.film_name) LIKE LOWER(?) " +
+                "GROUP BY f.film_id " +
+                "ORDER BY COUNT(lf.film_id) DESC";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, query, query);
+    }
+
     private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {
         Film film = new Film(
                 rs.getInt("film_id"),
