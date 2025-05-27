@@ -44,7 +44,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<Film> showMostLikedFilms(int count) {
+    public List<Film> showMostLikedFilms(int count, Integer genreId, Integer year) {
         if (count <= 0) {
             throw new IllegalArgumentException("Count must be positive");
         }
@@ -82,6 +82,7 @@ public class FilmServiceImpl implements FilmService {
         filmStorage.delete(id);
     }
 
+    @Override
     public Film getFilmById(int filmId) {
         return filmStorage.getFilmById(filmId);
     }
