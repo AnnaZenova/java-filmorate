@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.WrongDataException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.WrongDataException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.Film.FilmService;
 
@@ -33,9 +33,11 @@ public class FilmController {
 
     @GetMapping("/popular")
     @ResponseStatus(HttpStatus.OK)
-    public List<Film> showMostLikedFilms(@RequestParam(name = "count", defaultValue = "10") Integer count) {
+    public List<Film> showMostLikedFilms(@RequestParam(name = "count", defaultValue = "10") Integer count,
+                                         @RequestParam(name = "genreId", required = false) Integer genreId,
+                                         @RequestParam(name = "year", required = false) Integer year) {
         log.info("Получен GET-запрос к эндпоинту: '/films' на получение самого отлайканного фильма");
-        return filmService.showMostLikedFilms(count);
+        return filmService.showMostLikedFilms(count, genreId, year);
     }
 
     @PostMapping
@@ -92,6 +94,14 @@ public class FilmController {
         } else {
             throw new NotFoundException("Параметр sortBy должен быть 'year' или 'likes'");
         }
+    }
+
+    @GetMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getFilmsByDirector(@RequestParam(required = false) String query,
+                                         @RequestParam(defaultValue = "title") String by) {
+        log.info("Получен GET-запрос к эндпоинту: '/films/search' на получение фильмов по названию и режиссёру");
+        return filmService.search(query, by);
     }
 
     @GetMapping("/common")

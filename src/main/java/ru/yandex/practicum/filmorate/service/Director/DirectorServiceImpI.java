@@ -11,7 +11,7 @@ import java.util.List;
 @Slf4j
 public class DirectorServiceImpI implements DirectorService {
 
-    private DirectorStorage directorStorage;
+    private final DirectorStorage directorStorage;
 
     public DirectorServiceImpI(DirectorStorage directorStorage) {
         this.directorStorage = directorStorage;

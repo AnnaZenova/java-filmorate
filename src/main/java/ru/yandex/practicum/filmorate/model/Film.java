@@ -18,6 +18,11 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 public class Film {
+    private final Set<Integer> likes = new HashSet<>();
+    @NotNull
+    private final Set<Genre> genres = new HashSet<>();
+    @NotNull
+    private final Set<Director> directors = new HashSet<>();
     private int id;
     @NotBlank(message = "Название фильма не может быть пустым")
     private String name;
@@ -27,13 +32,8 @@ public class Film {
     private LocalDate releaseDate;
     @Positive(message = "Продолжительность фильма должна быть положительным числом")
     private int duration;
-    private final Set<Integer> likes = new HashSet<>();
-    @NotNull
-    private final Set<Genre> genres = new HashSet<>();
     @NotNull
     private Mpa mpa;
-    @NotNull
-    private final Set<Director> directors = new HashSet<>();
 
     public Film(int id,
                 String name,

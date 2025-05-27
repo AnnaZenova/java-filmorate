@@ -49,7 +49,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<Film> showMostLikedFilms(int count) {
+    public List<Film> showMostLikedFilms(int count, Integer genreId, Integer year) {
         if (count <= 0) {
             throw new IllegalArgumentException("Count must be positive");
         }
@@ -93,6 +93,32 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
+    public List<Film> getFilmsByDirectorSortedByYear(Integer directorId) {
+        return filmStorage.getFilmsByDirectorSortedByYear(directorId);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorSortedByLikes(Integer directorId) {
+        return filmStorage.getFilmsByDirectorSortedByLikes(directorId);
+    }
+
+    @Override
+    public List<Film> search(String query, String by) {
+        query = "%" + query + "%";
+        String[] bySplited = by.split(",");
+        if (bySplited.length == 1 && bySplited[0].equals("director")) {
+            return filmStorage.getFilmsWithQueryAndDirectorName(query);
+        } else if (bySplited.length == 1 && bySplited[0].equals("title")) {
+            return filmStorage.getFilmsWithQueryAndFilmName(query);
+        } else if (bySplited.length == 2 && (
+                (bySplited[0].equals("title") && bySplited[1].equals("director")) ||
+                        (bySplited[0].equals("director") && bySplited[1].equals("title")))) {
+            return filmStorage.getFilmsWithQueryAndFilmPlusDirector(query);
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
     public List<Film> findCommonFilms(int userId, int friendId) {
         // Проверяем существование пользователей
         if (userStorage.getUserById(userId) == null) {
@@ -102,15 +128,5 @@ public class FilmServiceImpl implements FilmService {
             throw new NotFoundException("Пользователь с ID=" + friendId + " не найден");
         }
         return filmStorage.findCommonFilms(userId, friendId);
-    }
-
-    @Override
-    public List<Film> getFilmsByDirectorSortedByYear(Integer directorId) {
-        return filmStorage.getFilmsByDirectorSortedByYear(directorId);
-    }
-
-    @Override
-    public List<Film> getFilmsByDirectorSortedByLikes(Integer directorId) {
-        return filmStorage.getFilmsByDirectorSortedByLikes(directorId);
     }
 }

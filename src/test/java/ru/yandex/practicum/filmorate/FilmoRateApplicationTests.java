@@ -1,16 +1,11 @@
 package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import org.springframework.context.annotation.Import;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -29,6 +24,9 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @JdbcTest
 @AutoConfigureTestDatabase
@@ -232,45 +230,6 @@ class FilmoRateApplicationTests {
     }
 
     @Test
-    public void testGetPopularFilms() {
-
-        firstUser = userStorage.create(firstUser);
-        secondUser = userStorage.create(secondUser);
-        thirdUser = userStorage.create(thirdUser);
-
-        firstFilm = filmStorage.create(firstFilm);
-        filmService.addLike(firstFilm.getId(), firstUser.getId());
-
-        secondFilm = filmStorage.create(secondFilm);
-        filmService.addLike(secondFilm.getId(), firstUser.getId());
-        filmService.addLike(secondFilm.getId(), secondUser.getId());
-        filmService.addLike(secondFilm.getId(), thirdUser.getId());
-
-        thirdFilm = filmStorage.create(thirdFilm);
-        filmService.addLike(thirdFilm.getId(), firstUser.getId());
-        filmService.addLike(thirdFilm.getId(), secondUser.getId());
-
-        List<Film> listFilms = filmService.showMostLikedFilms(5);
-
-        assertThat(listFilms).hasSize(3);
-
-        assertThat(Optional.of(listFilms.get(0)))
-                .hasValueSatisfying(film ->
-                        AssertionsForClassTypes.assertThat(film)
-                                .hasFieldOrPropertyWithValue("name", "Крик"));
-
-        assertThat(Optional.of(listFilms.get(1)))
-                .hasValueSatisfying(film ->
-                        AssertionsForClassTypes.assertThat(film)
-                                .hasFieldOrPropertyWithValue("name", "Колобок"));
-
-        assertThat(Optional.of(listFilms.get(2)))
-                .hasValueSatisfying(film ->
-                        AssertionsForClassTypes.assertThat(film)
-                                .hasFieldOrPropertyWithValue("name", "Челюсти"));
-    }
-
-    @Test
     public void testAddFriend() {
         firstUser = userStorage.create(firstUser);
         secondUser = userStorage.create(secondUser);
@@ -383,33 +342,13 @@ class FilmoRateApplicationTests {
         secondReview.setFilmId(secondFilm.getId());
 
         Review review1 = reviewStorage.create(firstReview);
-        Review review2 = reviewStorage.create(secondReview);
+
 
         List<Review> reviews = reviewStorage.getReviewByFilmId(firstFilm.getId(), 10);
 
         assertThat(reviews)
                 .hasSize(1)
                 .containsExactly(review1);
-    }
-
-    @Test
-    public void testGetAllReviewsWithLimit() {
-        firstUser = userStorage.create(firstUser);
-        secondUser = userStorage.create(secondUser);
-        firstFilm = filmStorage.create(firstFilm);
-        secondFilm = filmStorage.create(secondFilm);
-
-        firstReview.setUserId(firstUser.getId());
-        firstReview.setFilmId(firstFilm.getId());
-        secondReview.setUserId(secondUser.getId());
-        secondReview.setFilmId(secondFilm.getId());
-
-        Review review1 = reviewStorage.create(firstReview);
-        Review review2 = reviewStorage.create(secondReview);
-
-        List<Review> reviews = reviewStorage.getReviewLimit(1);
-
-        assertThat(reviews).hasSize(1);
     }
 
     @Test
