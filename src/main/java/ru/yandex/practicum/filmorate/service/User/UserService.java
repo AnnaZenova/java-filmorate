@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service.User;
 
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
@@ -21,4 +22,6 @@ public interface UserService {
     User update(User user);
 
     void deleteUser(int id);
+
+    Collection<Event> getEventByUserId(int id);
 }

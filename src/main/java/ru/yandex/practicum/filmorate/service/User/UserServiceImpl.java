@@ -4,7 +4,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.model.enums.OperationType;
+import ru.yandex.practicum.filmorate.storage.Event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.User.UserStorage;
 
 import java.util.*;
@@ -14,15 +18,18 @@ import java.util.*;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
+    private final EventStorage eventStorage;
 
     @Override
     public void addFriend(int userId, int friendId) {
+        eventStorage.createEvent(userId, EventType.FRIEND, OperationType.ADD, friendId);
         userStorage.addFriend(userId, friendId);
         log.info("Добавили друга пользователю с ID: {}", userId);
     }
 
     @Override
     public void deleteFriend(int userId, int friendId) {
+        eventStorage.createEvent(userId, EventType.FRIEND, OperationType.REMOVE, friendId);
         userStorage.deleteFriend(userId, friendId);
         log.info("Удалили друга у пользователя с ID: {}", userId);
     }
@@ -77,5 +84,10 @@ public class UserServiceImpl implements UserService {
         User user = userStorage.getUserById(id);
         userStorage.deleteUser(id);
         log.info("Удален пользователь user: {}", user);
+    }
+
+    @Override
+    public Collection<Event> getEventByUserId(int userId) {
+        return eventStorage.getEventByUserId(userId);
     }
 }

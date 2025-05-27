@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.Event.EventService;
 import ru.yandex.practicum.filmorate.service.User.UserService;
 
 import java.util.Collection;
@@ -17,13 +16,11 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
-    private final EventService eventService;
 
     @Autowired
     public UserController(
-            UserService userService, EventService eventService) {
+            UserService userService) {
         this.userService = userService;
-        this.eventService = eventService;
     }
 
     @GetMapping
@@ -76,9 +73,9 @@ public class UserController {
     }
 
     @GetMapping("{id}/feed")
-    public List<Event> getUserFeed(@PathVariable("id") int userId) {
+    public Collection<Event> getUserFeed(@PathVariable int userId) {
         log.info("GET request received: get feed of user \"{}\"", userId);
-        return eventService.getUserEvents(userId);
+        return userService.getEventByUserId(userId);
     }
 }
 

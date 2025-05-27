@@ -1,14 +1,13 @@
 package ru.yandex.practicum.filmorate.storage.Event;
 
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.model.enums.OperationType;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface EventStorage {
-    Event createEvent(Event event);
+    Event createEvent(int userId, EventType eventType, OperationType operationType, int entityId);
 
-    List<Event> getUserEvents(int userId);
-
-    Event getEventById(int evenId) throws NotFoundException;
+    Collection<Event> getEventByUserId(int userId);
 }

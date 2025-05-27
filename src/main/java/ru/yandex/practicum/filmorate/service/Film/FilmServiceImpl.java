@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.model.enums.OperationType;
+import ru.yandex.practicum.filmorate.storage.Event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.Film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.User.UserStorage;
 
@@ -22,12 +25,14 @@ public class FilmServiceImpl implements FilmService {
 
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final EventStorage eventStorage;
 
     @Override
     public void addLike(@Valid int filmId, @Valid int userId) {
         Film film = filmStorage.getFilmById(filmId);
         if (film != null) {
             if (userStorage.getUserById(userId) != null) {
+                eventStorage.createEvent(userId, EventType.LIKE, OperationType.ADD, filmId);
                 filmStorage.putLikeToFilm(filmId, userId);
                 log.info("Добавлен лайк пользователя с id-" + userId + " к фильму " + filmStorage.getFilmById(filmId));
             } else {
@@ -43,6 +48,7 @@ public class FilmServiceImpl implements FilmService {
         Film film = filmStorage.getFilmById(filmId);
         if (film != null) {
             if (film.getLikes().contains(userId)) {
+                eventStorage.createEvent(userId, EventType.LIKE, OperationType.REMOVE, filmId);
                 filmStorage.getFilmById(filmId).getLikes().remove(userId);
                 log.info("Удален лайк пользователя с id-" + userId + " к фильму " + filmStorage.getFilmById(filmId));
             } else {

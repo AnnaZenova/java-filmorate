@@ -1,42 +1,29 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.model.enums.OperationType;
 
 import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.Map;
 
 @Data
 @Builder
-@AllArgsConstructor
 public class Event {
-    @JsonProperty("eventId")
-    private int id;
+    private int eventId;
+    @NotNull
     private int userId;
+    @NotNull
+    @NotBlank
     private EventType eventType;
-    private OperationType operation;
+    @NotNull
+    @NotBlank
+    private OperationType operationType;
+    @NotNull
     private int entityId;
-    @JsonIgnore
-    private Timestamp timestamp;
-
-    @JsonProperty("timestamp")
-    public long getTimestampMillisecond() {
-        return timestamp.getTime();
-    }
-
-    public Map<String, Object> toMap() {
-        Map<String, Object> values = new HashMap<>();
-        values.put("email", userId);
-        values.put("login", eventType);
-        values.put("user_name", operation);
-        values.put("birthday", entityId);
-        values.put("timestamp", timestamp);
-        return values;
-    }
+    @Positive
+    private long timestamp;
 }
