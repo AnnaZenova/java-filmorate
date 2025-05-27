@@ -49,7 +49,7 @@ public class FilmServiceImpl implements FilmService {
             throw new IllegalArgumentException("Count must be positive");
         }
         if (genreId != null && year != null) {
-           return filmStorage.getPopularFilmsByGenreAndYear(count, genreId, year);
+            return filmStorage.getPopularFilmsByGenreAndYear(count, genreId, year);
         } else if (genreId != null) {
             return filmStorage.getPopularFilmsByGenre(count, genreId);
         } else if (year != null) {
