@@ -19,7 +19,7 @@ public interface FilmService {
 
     void delete(int id);
 
-    public Film getFilmById(int filmId);
+    Film getFilmById(int filmId);
 
     List<Film> findCommonFilms(int userId, int friendId);
 }

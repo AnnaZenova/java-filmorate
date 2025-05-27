@@ -48,9 +48,6 @@ public class FilmServiceImpl implements FilmService {
         if (count <= 0) {
             throw new IllegalArgumentException("Count must be positive");
         }
-
-//        List<Film> allFilms = new ArrayList<>(filmStorage.findAll());
-
         if (genreId != null && year != null) {
            return filmStorage.getPopularFilmsByGenreAndYear(count, genreId, year);
         } else if (genreId != null) {
@@ -58,7 +55,6 @@ public class FilmServiceImpl implements FilmService {
         } else if (year != null) {
             return filmStorage.getPopularFilmsByYear(count, year);
         } else {
-            // в случае, если фильтры не указаны, возвращаем общий список популярных фильмов
             return new ArrayList<>(filmStorage.getPopularFilms(count));
         }
     }

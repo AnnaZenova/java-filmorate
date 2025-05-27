@@ -232,7 +232,15 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getPopularFilmsByGenreAndYear(int count, Integer genreId, Integer year) {
         log.info("Получение списка популярных фильмов по лайкам, году и жанру");
-        return List.of();
+        String sql = "SELECT f.*, m.mpa_name FROM FILMS f " +
+                "JOIN MPA m ON(f.MPA_ID = m.MPA_ID) " +
+                "LEFT OUTER JOIN LIKES_VS_FILM l ON (l.FILM_ID = f.FILM_ID) " +
+                "JOIN GENRE_VS_FILM fg ON f.FILM_ID = fg.FILM_ID " +
+                "WHERE fg.GENRE_ID = ? AND EXTRACT(YEAR FROM f.RELEASE_DATE) = ? " +
+                "GROUP BY f.FILM_ID, m.mpa_name " +
+                "ORDER BY COUNT(l.USER_ID) DESC " +
+                "LIMIT ?";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, year, count);
     }
 
     @Override
@@ -242,10 +250,10 @@ public class FilmDbStorage implements FilmStorage {
                 "JOIN MPA m ON(f.MPA_ID = m.MPA_ID) " +
                 "LEFT OUTER JOIN LIKES_VS_FILM l ON (l.FILM_ID = f.FILM_ID) " +
                 "JOIN GENRE_VS_FILM fg ON f.FILM_ID = fg.FILM_ID " +
-                "JOIN GENRES g ON(fg.GENRE_ID = g.GENRE_ID AND g.GENRE_ID = ?) " +
+                "WHERE fg.GENRE_ID = ? " +
                 "GROUP BY f.FILM_ID, m.mpa_name " +
                 "ORDER BY COUNT(l.USER_ID AND fg.GENRE_ID) DESC " +
-                "LIMIT ?;";
+                "LIMIT ?";
 
         return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, count);
     }
@@ -254,7 +262,15 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getPopularFilmsByYear(int count, Integer year) {
         log.info("Получение списка популярных фильмов по лайкам и году");
 
-        return List.of();
+        String sql = "SELECT f.*, m.mpa_name FROM FILMS f " +
+                "JOIN MPA m ON(f.MPA_ID = m.MPA_ID) " +
+                "LEFT OUTER JOIN LIKES_VS_FILM l ON (l.FILM_ID = f.FILM_ID) " +
+                "WHERE EXTRACT(YEAR FROM f.RELEASE_DATE) = ? " +
+                "GROUP BY f.FILM_ID, m.mpa_name " +
+                "ORDER BY COUNT(l.USER_ID) DESC " +
+                "LIMIT ?";
+
+        return jdbcTemplate.query(sql, this::mapRowToFilm, year, count);
     }
 
     private boolean isValidFilm(Film film) {
