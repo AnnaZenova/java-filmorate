@@ -111,6 +111,8 @@ public class FilmServiceImpl implements FilmService {
         } else {
             return new ArrayList<>();
         }
+    }
+
     public List<Film> findCommonFilms(int userId, int friendId) {
         // Проверяем существование пользователей
         if (userStorage.getUserById(userId) == null) {
