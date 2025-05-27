@@ -21,5 +21,9 @@ public interface FilmService {
 
     Film getFilmById(int filmId);
 
+    List<Film> getFilmsByDirectorSortedByYear(Integer directorId);
+
+    List<Film> getFilmsByDirectorSortedByLikes(Integer directorId);
+
     List<Film> findCommonFilms(int userId, int friendId);
 }

@@ -18,6 +18,10 @@ public interface FilmStorage {
 
     void putLikeToFilm(int filmId, int userId);
 
+    List<Film> getFilmsByDirectorSortedByYear(Integer directorId);
+
+    List<Film> getFilmsByDirectorSortedByLikes(Integer directorId);
+
     List<Film> findCommonFilms(int userId, int friendId);
 
     void deleteLike(int filmId, int userId);
