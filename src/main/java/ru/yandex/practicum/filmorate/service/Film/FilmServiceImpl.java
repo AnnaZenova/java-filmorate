@@ -45,18 +45,7 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public void deleteLike(@Valid int filmId, @Valid int userId) {
-        Film film = filmStorage.getFilmById(filmId);
-        if (film != null) {
-            if (film.getLikes().contains(userId)) {
-                eventStorage.createEvent(userId, EventType.LIKE, OperationType.REMOVE, filmId);
-                filmStorage.getFilmById(filmId).getLikes().remove(userId);
-                log.info("Удален лайк пользователя с id-" + userId + " к фильму " + filmStorage.getFilmById(filmId));
-            } else {
-                throw new NotFoundException("Лайк от пользователя c ID=" + userId + " не найден!");
-            }
-        } else {
-            throw new NotFoundException("Фильм c ID=" + filmId + " не найден!");
-        }
+        filmStorage.deleteLike(filmId, userId);
     }
 
     @Override
@@ -101,5 +90,27 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public Film getFilmById(int filmId) {
         return filmStorage.getFilmById(filmId);
+    }
+
+    @Override
+    public List<Film> findCommonFilms(int userId, int friendId) {
+        // Проверяем существование пользователей
+        if (userStorage.getUserById(userId) == null) {
+            throw new NotFoundException("Пользователь с ID=" + userId + " не найден");
+        }
+        if (userStorage.getUserById(friendId) == null) {
+            throw new NotFoundException("Пользователь с ID=" + friendId + " не найден");
+        }
+        return filmStorage.findCommonFilms(userId, friendId);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorSortedByYear(Integer directorId) {
+        return filmStorage.getFilmsByDirectorSortedByYear(directorId);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorSortedByLikes(Integer directorId) {
+        return filmStorage.getFilmsByDirectorSortedByLikes(directorId);
     }
 }

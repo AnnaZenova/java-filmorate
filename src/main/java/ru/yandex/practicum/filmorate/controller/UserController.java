@@ -5,8 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.User.UserService;
+import ru.yandex.practicum.filmorate.service.recommendation.RecommendationService;
 
 import java.util.Collection;
 import java.util.List;
@@ -16,11 +18,13 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+    private final RecommendationService recommendationService;
 
     @Autowired
     public UserController(
-            UserService userService) {
+            UserService userService, RecommendationService recommendationService) {
         this.userService = userService;
+        this.recommendationService = recommendationService;
     }
 
     @GetMapping
@@ -77,5 +81,12 @@ public class UserController {
         log.info("GET request received: get feed of user \"{}\"", userId);
         return userService.getEventByUserId(userId);
     }
+
+    @GetMapping("/{id}/recommendations")
+    public List<Film> getRecommendationsFilm(@PathVariable("id") int id) {
+        log.info("Получен GET-запрос к эндпоинту: '/users' на получение рекомендаций по фильмам");
+        return recommendationService.getRecommendationsFilms(id);
+    }
+
 }
 
