@@ -96,20 +96,6 @@ public class FilmController {
         }
     }
 
-    @GetMapping("/director/{directorId}")
-    @ResponseStatus(HttpStatus.OK)
-    public List<Film> getFilmsByDirector(@PathVariable("directorId") int directorId,
-                                         @RequestParam(defaultValue = "year") String sortBy) {
-        log.info("Получен GET-запрос к эндпоинту: '/films' на получение фильмов режиссёра c ID={}", directorId);
-        if (sortBy.equals("year")) {
-            return filmService.getFilmsByDirectorSortedByYear(directorId);
-        } else if (sortBy.equals("likes")) {
-            return filmService.getFilmsByDirectorSortedByLikes(directorId);
-        } else {
-            throw new NotFoundException("Параметр sortBy должен быть 'year' или 'likes'");
-        }
-    }
-
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
     public List<Film> getFilmsByDirector(@RequestParam(required = false) String query,
