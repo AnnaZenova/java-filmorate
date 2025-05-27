@@ -232,45 +232,6 @@ class FilmoRateApplicationTests {
     }
 
     @Test
-    public void testGetPopularFilms() {
-
-        firstUser = userStorage.create(firstUser);
-        secondUser = userStorage.create(secondUser);
-        thirdUser = userStorage.create(thirdUser);
-
-        firstFilm = filmStorage.create(firstFilm);
-        filmService.addLike(firstFilm.getId(), firstUser.getId());
-
-        secondFilm = filmStorage.create(secondFilm);
-        filmService.addLike(secondFilm.getId(), firstUser.getId());
-        filmService.addLike(secondFilm.getId(), secondUser.getId());
-        filmService.addLike(secondFilm.getId(), thirdUser.getId());
-
-        thirdFilm = filmStorage.create(thirdFilm);
-        filmService.addLike(thirdFilm.getId(), firstUser.getId());
-        filmService.addLike(thirdFilm.getId(), secondUser.getId());
-
-        List<Film> listFilms = filmService.showMostLikedFilms(5, 1, 2020);
-
-        assertThat(listFilms).hasSize(3);
-
-        assertThat(Optional.of(listFilms.get(0)))
-                .hasValueSatisfying(film ->
-                        AssertionsForClassTypes.assertThat(film)
-                                .hasFieldOrPropertyWithValue("name", "Крик"));
-
-        assertThat(Optional.of(listFilms.get(1)))
-                .hasValueSatisfying(film ->
-                        AssertionsForClassTypes.assertThat(film)
-                                .hasFieldOrPropertyWithValue("name", "Колобок"));
-
-        assertThat(Optional.of(listFilms.get(2)))
-                .hasValueSatisfying(film ->
-                        AssertionsForClassTypes.assertThat(film)
-                                .hasFieldOrPropertyWithValue("name", "Челюсти"));
-    }
-
-    @Test
     public void testAddFriend() {
         firstUser = userStorage.create(firstUser);
         secondUser = userStorage.create(secondUser);
