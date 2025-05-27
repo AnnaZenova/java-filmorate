@@ -33,9 +33,11 @@ public class FilmController {
 
     @GetMapping("/popular")
     @ResponseStatus(HttpStatus.OK)
-    public List<Film> showMostLikedFilms(@RequestParam(name = "count", defaultValue = "10") Integer count) {
+    public List<Film> showMostLikedFilms(@RequestParam(name = "count", defaultValue = "10") Integer count,
+                                         @RequestParam(name = "genreId", required = false) Integer genreId,
+                                         @RequestParam(name = "year", required = false) Integer year) {
         log.info("Получен GET-запрос к эндпоинту: '/films' на получение самого отлайканного фильма");
-        return filmService.showMostLikedFilms(count);
+        return filmService.showMostLikedFilms(count, genreId, year);
     }
 
     @PostMapping

@@ -292,6 +292,65 @@ public class FilmDbStorage implements FilmStorage {
         return commonLikes;
     }
 
+    @Override
+    public List<Film> getPopularFilms(int count) {
+        log.info("Получение списка популярных фильмов.");
+        String sql =
+                "SELECT f.*, mr.mpa_name " +
+                        "FROM films AS f " +
+                        "JOIN mpa AS mr ON f.mpa_id = mr.mpa_id " +
+                        "LEFT OUTER JOIN likes_vs_film l ON (f.film_id = l.film_id) " +
+                        "GROUP BY f.film_id, mr.mpa_name " +
+                        "ORDER BY COUNT(l.user_id) desc " +
+                        "LIMIT ?";
+
+        return jdbcTemplate.query(sql, this::mapRowToFilm, count);
+    }
+
+    @Override
+    public List<Film> getPopularFilmsByGenreAndYear(int count, Integer genreId, Integer year) {
+        log.info("Получение списка популярных фильмов по лайкам, году и жанру");
+        String sql = "SELECT f.*, m.mpa_name FROM FILMS f " +
+                "JOIN MPA m ON(f.MPA_ID = m.MPA_ID) " +
+                "LEFT OUTER JOIN LIKES_VS_FILM l ON (l.FILM_ID = f.FILM_ID) " +
+                "JOIN GENRE_VS_FILM fg ON f.FILM_ID = fg.FILM_ID " +
+                "WHERE fg.GENRE_ID = ? AND EXTRACT(YEAR FROM f.RELEASE_DATE) = ? " +
+                "GROUP BY f.FILM_ID, m.mpa_name " +
+                "ORDER BY COUNT(l.USER_ID) DESC " +
+                "LIMIT ?";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, year, count);
+    }
+
+    @Override
+    public List<Film> getPopularFilmsByGenre(int count, Integer genreId) {
+        log.info("Получение списка популярных фильмов по лайкам и жанру");
+        String sql = "SELECT f.*, m.mpa_name FROM FILMS f " +
+                "JOIN MPA m ON(f.MPA_ID = m.MPA_ID) " +
+                "LEFT OUTER JOIN LIKES_VS_FILM l ON (l.FILM_ID = f.FILM_ID) " +
+                "JOIN GENRE_VS_FILM fg ON f.FILM_ID = fg.FILM_ID " +
+                "WHERE fg.GENRE_ID = ? " +
+                "GROUP BY f.FILM_ID, m.mpa_name " +
+                "ORDER BY COUNT(l.USER_ID AND fg.GENRE_ID) DESC " +
+                "LIMIT ?";
+
+        return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, count);
+    }
+
+    @Override
+    public List<Film> getPopularFilmsByYear(int count, Integer year) {
+        log.info("Получение списка популярных фильмов по лайкам и году");
+
+        String sql = "SELECT f.*, m.mpa_name FROM FILMS f " +
+                "JOIN MPA m ON(f.MPA_ID = m.MPA_ID) " +
+                "LEFT OUTER JOIN LIKES_VS_FILM l ON (l.FILM_ID = f.FILM_ID) " +
+                "WHERE EXTRACT(YEAR FROM f.RELEASE_DATE) = ? " +
+                "GROUP BY f.FILM_ID, m.mpa_name " +
+                "ORDER BY COUNT(l.USER_ID) DESC " +
+                "LIMIT ?";
+
+        return jdbcTemplate.query(sql, this::mapRowToFilm, year, count);
+    }
+
     private boolean isValidFilm(Film film) {
         if (film.getReleaseDate().isBefore(RELEASE_DATE_MIN_DATE)) {
             throw new WrongDataException("Некорректная дата релиза фильма: " + film.getReleaseDate());
