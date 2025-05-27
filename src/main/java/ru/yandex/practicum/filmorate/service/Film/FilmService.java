@@ -11,7 +11,7 @@ public interface FilmService {
 
     void deleteLike(int filmId, int userId);
 
-    List<Film> showMostLikedFilms(int count);
+    List<Film> showMostLikedFilms(int count, int genreId, int year);
 
     Film create(Film film);
 

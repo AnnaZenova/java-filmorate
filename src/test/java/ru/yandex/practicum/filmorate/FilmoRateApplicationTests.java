@@ -250,7 +250,7 @@ class FilmoRateApplicationTests {
         filmService.addLike(thirdFilm.getId(), firstUser.getId());
         filmService.addLike(thirdFilm.getId(), secondUser.getId());
 
-        List<Film> listFilms = filmService.showMostLikedFilms(5);
+        List<Film> listFilms = filmService.showMostLikedFilms(5, 1, 2020);
 
         assertThat(listFilms).hasSize(3);
 

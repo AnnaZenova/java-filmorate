@@ -44,7 +44,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<Film> showMostLikedFilms(int count) {
+    public List<Film> showMostLikedFilms(int count, int genreId, int year) {
         if (count <= 0) {
             throw new IllegalArgumentException("Count must be positive");
         }
