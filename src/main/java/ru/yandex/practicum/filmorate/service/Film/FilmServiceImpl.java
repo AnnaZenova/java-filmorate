@@ -54,17 +54,15 @@ public class FilmServiceImpl implements FilmService {
         if (count <= 0) {
             throw new IllegalArgumentException("Count must be positive");
         }
-
-        List<Film> allFilms = new ArrayList<>(filmStorage.findAll());
-
-        // Сортируем по возрастанию лайков (как ожидает тест)
-        allFilms.sort((f1, f2) -> {
-            int likes1 = f1.getLikes() != null ? f1.getLikes().size() : 0;
-            int likes2 = f2.getLikes() != null ? f2.getLikes().size() : 0;
-            return Integer.compare(likes2, likes1); // Обратное сравнение
-        });
-        log.info("Возвращаем список наиболее популярных фильмов");
-        return allFilms.subList(0, Math.min(count, allFilms.size()));
+        if (genreId != null && year != null) {
+            return filmStorage.getPopularFilmsByGenreAndYear(count, genreId, year);
+        } else if (genreId != null) {
+            return filmStorage.getPopularFilmsByGenre(count, genreId);
+        } else if (year != null) {
+            return filmStorage.getPopularFilmsByYear(count, year);
+        } else {
+            return new ArrayList<>(filmStorage.getPopularFilms(count));
+        }
     }
 
     @Override

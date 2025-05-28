@@ -28,14 +28,14 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public Review create(@RequestBody Review review) {
         Review resReview = reviewStorage.create(review);
-        eventStorage.addEvent(review.getUserId(), EventEnum.REVIEW, OperationEnum.ADD, review.getFilmId());
+        eventStorage.addEvent(review.getUserId(), EventEnum.REVIEW, OperationEnum.ADD, review.getReviewId());
         return resReview;
     }
 
     @Override
     public Review update(@RequestBody Review newReview) {
         Review resReview = reviewStorage.update(newReview);
-        eventStorage.addEvent(newReview.getUserId(), EventEnum.REVIEW, OperationEnum.UPDATE, newReview.getFilmId());
+        eventStorage.addEvent(newReview.getUserId(), EventEnum.REVIEW, OperationEnum.UPDATE, newReview.getReviewId());
         return resReview;
     }
 
@@ -43,7 +43,7 @@ public class ReviewServiceImpl implements ReviewService {
     public void delete(@PathVariable int id) {
         Review review = reviewStorage.getReviewById(id);
         reviewStorage.deleteById(id);
-        eventStorage.addEvent(review.getUserId(), EventEnum.REVIEW, OperationEnum.REMOVE, review.getFilmId());
+        eventStorage.addEvent(review.getUserId(), EventEnum.REVIEW, OperationEnum.REMOVE, review.getReviewId());
     }
 
     @Override
