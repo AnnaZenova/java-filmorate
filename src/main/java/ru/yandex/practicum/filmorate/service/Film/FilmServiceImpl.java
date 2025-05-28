@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.enums.EventEnum;
+import ru.yandex.practicum.filmorate.model.enums.OperationEnum;
+import ru.yandex.practicum.filmorate.storage.Event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.Film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.User.UserStorage;
 
@@ -22,6 +25,7 @@ public class FilmServiceImpl implements FilmService {
 
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final EventStorage eventStorage;
 
     @Override
     public void addLike(@Valid int filmId, @Valid int userId) {
@@ -36,11 +40,13 @@ public class FilmServiceImpl implements FilmService {
         } else {
             throw new NotFoundException("Фильм c ID=" + filmId + " не найден!");
         }
+        eventStorage.addEvent(userId, EventEnum.LIKE, OperationEnum.ADD, filmId);
     }
 
     @Override
     public void deleteLike(@Valid int filmId, @Valid int userId) {
         filmStorage.deleteLike(filmId, userId);
+        eventStorage.addEvent(userId, EventEnum.LIKE, OperationEnum.REMOVE, filmId);
     }
 
     @Override

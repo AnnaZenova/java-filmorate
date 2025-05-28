@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.User.UserService;
@@ -81,5 +83,16 @@ public class UserController {
         return recommendationService.getRecommendationsFilms(id);
     }
 
+    @GetMapping("/{id}/feed")
+    public List<Event> getFeedList(@PathVariable("id") int userId) {
+        log.info("Получен GET-запрос к эндпоинту: '/users' на получение ленты событий");
+        return userService.getFeedList(userId);
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public User getUserById(@PathVariable int id){
+        return userService.getUserById(id);
+    }
 }
 

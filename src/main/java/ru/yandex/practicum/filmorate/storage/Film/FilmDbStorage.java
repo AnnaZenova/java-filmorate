@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.Film;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -94,6 +95,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void delete(int filmId) {
+        getFilmById(filmId);
         jdbcTemplate.update("DELETE FROM films WHERE film_id = ?", filmId);
         log.info("Удален фильм с ID={}", filmId);
     }
@@ -106,14 +108,16 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film getFilmById(int filmId) {
-        String sql = "SELECT f.*, m.mpa_name FROM films f LEFT JOIN mpa m ON f.mpa_id = m.mpa_id " +
-                "WHERE f.film_id = ?";
-
         try {
-            return jdbcTemplate.queryForObject(sql, this::mapRowToFilm, filmId);
-        } catch (WrongDataException e) {
-            log.info("Фильм не найден с ID={}", filmId);
-            return null;
+            String sql = "SELECT f.*, m.mpa_name FROM films f LEFT JOIN mpa m ON f.mpa_id = m.mpa_id " +
+                    "WHERE f.film_id = ?";
+            Film film = jdbcTemplate.queryForObject(sql, this::mapRowToFilm, filmId);
+            if (film == null) {
+                throw new NotFoundException("Фильм с ID=" + filmId + " не найден");
+            }
+            return film;
+        } catch (EmptyResultDataAccessException e) {
+            throw new NotFoundException("Фильм с ID=" + filmId + " не найден");
         }
     }
 

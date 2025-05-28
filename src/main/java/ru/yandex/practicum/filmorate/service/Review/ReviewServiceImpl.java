@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.enums.EventEnum;
+import ru.yandex.practicum.filmorate.model.enums.OperationEnum;
+import ru.yandex.practicum.filmorate.storage.Event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.Film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.Review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.User.UserStorage;
@@ -20,20 +23,27 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewStorage reviewStorage;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final EventStorage eventStorage;
 
     @Override
     public Review create(@RequestBody Review review) {
-        return reviewStorage.create(review);
+        Review resReview = reviewStorage.create(review);
+        eventStorage.addEvent(review.getUserId(), EventEnum.REVIEW, OperationEnum.ADD, review.getFilmId());
+        return resReview;
     }
 
     @Override
     public Review update(@RequestBody Review newReview) {
-        return reviewStorage.update(newReview);
+        Review resReview = reviewStorage.update(newReview);
+        eventStorage.addEvent(newReview.getUserId(), EventEnum.REVIEW, OperationEnum.UPDATE, newReview.getFilmId());
+        return resReview;
     }
 
     @Override
     public void delete(@PathVariable int id) {
+        Review review = reviewStorage.getReviewById(id);
         reviewStorage.deleteById(id);
+        eventStorage.addEvent(review.getUserId(), EventEnum.REVIEW, OperationEnum.REMOVE, review.getFilmId());
     }
 
     @Override
