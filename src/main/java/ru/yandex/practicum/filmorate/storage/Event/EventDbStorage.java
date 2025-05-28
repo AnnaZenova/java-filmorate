@@ -32,10 +32,6 @@ public class EventDbStorage implements EventStorage {
 
     @Override
     public Event addEvent(int userId, EventEnum eventType, OperationEnum operationEnum, int entityId) {
-        /*if (!userExists(userId)){
-            throw new NotFoundException("Юзера с таким id нет !");
-        }*/
-
         KeyHolder holder = new GeneratedKeyHolder();
         Event event = Event.builder()
                 .userId(userId)

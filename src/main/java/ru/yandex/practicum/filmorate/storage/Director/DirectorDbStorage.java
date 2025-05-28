@@ -51,7 +51,7 @@ public class DirectorDbStorage implements DirectorStorage {
         Integer directorId = keyHolder.getKeyAs(Integer.class);
 
         director.setDirectorId(directorId);
-        log.info("Добавлен новый фильм с ID={}", director.getDirectorId());
+        log.info("Добавлен новый режиссер с ID={}", director.getDirectorId());
         return director;
     }
 

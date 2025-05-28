@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.enums.EventEnum;
 import ru.yandex.practicum.filmorate.model.enums.OperationEnum;
 import ru.yandex.practicum.filmorate.storage.Event.EventStorage;
@@ -28,18 +29,18 @@ public class FilmServiceImpl implements FilmService {
     private final EventStorage eventStorage;
 
     @Override
-    public void addLike(@Valid int filmId, @Valid int userId) {
+    public void addLike(int filmId, int userId) {
         Film film = filmStorage.getFilmById(filmId);
-        if (film != null) {
-            if (userStorage.getUserById(userId) != null) {
-                filmStorage.putLikeToFilm(filmId, userId);
-                log.info("Добавлен лайк пользователя с id-" + userId + " к фильму " + filmStorage.getFilmById(filmId));
-            } else {
-                throw new NotFoundException("Пользователь c ID=" + userId + " не найден!");
-            }
-        } else {
-            throw new NotFoundException("Фильм c ID=" + filmId + " не найден!");
+        User user = userStorage.getUserById(userId);
+
+        if (film == null) {
+            throw new NotFoundException("Фильм с ID=" + filmId + " не найден!");
         }
+        if (user == null) {
+            throw new NotFoundException("Пользователь с ID=" + userId + " не найден!");
+        }
+        filmStorage.putLikeToFilm(filmId, userId);
+        log.info("Пользователь ID={} поставил лайк фильму ID={}", userId, filmId);
         eventStorage.addEvent(userId, EventEnum.LIKE, OperationEnum.ADD, filmId);
     }
 
@@ -77,7 +78,6 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film update(@RequestBody @Valid Film newFilm) {
-        // проверяем необходимые условия
         return filmStorage.update(newFilm);
     }
 
