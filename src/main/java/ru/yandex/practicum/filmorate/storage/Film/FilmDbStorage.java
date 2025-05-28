@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.Director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.Mpa.MpaDbStorage;
 
 import java.sql.*;
@@ -30,9 +31,11 @@ public class FilmDbStorage implements FilmStorage {
     private MpaDbStorage mpaDbStorage;
 
     private final JdbcTemplate jdbcTemplate;
+    private final DirectorStorage directorStorage;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, DirectorStorage directorStorage) {
         this.jdbcTemplate = jdbcTemplate;
+        this.directorStorage = directorStorage;
     }
 
     @Override
@@ -55,6 +58,7 @@ public class FilmDbStorage implements FilmStorage {
         film.setId(filmId);
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             saveFilmGenres(filmId, film.getGenres());
+            film.setGenres(new ArrayList<>(film.getGenres()));
         }
         if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
             saveFilmDirectors(filmId, film.getDirectors());
@@ -130,6 +134,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilmsByDirectorSortedByYear(Integer directorId) {
+        directorStorage.getDirectorById(directorId);
         String sql = "SELECT f.*, m.mpa_name " +
                 "FROM films AS f " +
                 "JOIN director_vs_film AS df ON f.film_id = df.film_id " +
@@ -142,6 +147,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilmsByDirectorSortedByLikes(Integer directorId) {
+        directorStorage.getDirectorById(directorId);
         String sql = "SELECT f.*, m.mpa_name " +
                 "FROM films AS f " +
                 "JOIN director_vs_film AS df ON f.film_id = df.film_id " +
@@ -214,7 +220,7 @@ public class FilmDbStorage implements FilmStorage {
     private List<Genre> getFilmGenres(int filmId) {
         String sql = "SELECT g.genre_id, g.genre_name FROM genre_vs_film fg " +
                 "JOIN genres g ON fg.genre_id = g.genre_id " +
-                "WHERE fg.film_id = ?";
+                "WHERE fg.film_id = ? ";
         return jdbcTemplate.query(sql, this::mapRowToGenre, filmId);
     }
 
@@ -249,6 +255,7 @@ public class FilmDbStorage implements FilmStorage {
                 .filter(g -> g != null && g.getGenreId() != null)
                 .collect(Collectors.toList());
 
+        validGenres.sort((g1, g2) -> {return g1.getGenreId() - g2.getGenreId();});
         if (validGenres.isEmpty()) {
             return;
         }

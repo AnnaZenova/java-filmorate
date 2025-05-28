@@ -10,7 +10,7 @@ import ru.yandex.practicum.filmorate.model.enums.EventEnum;
 @Builder
 @AllArgsConstructor
 public class Event {
-    private int id;
+    private int eventId;
     private int userId;
     private long timestamp;
     private EventEnum eventType;

@@ -126,7 +126,11 @@ public class UserDbStorage implements UserStorage {
     @Override
     public void deleteUser(int userId) {
         String sql = "DELETE FROM users WHERE user_id = ?";
-        jdbcTemplate.update(sql, userId);
+        if (userExists(userId)) {
+            jdbcTemplate.update(sql, userId);
+        } else {
+            throw new NotFoundException("Нет такого юзера !");
+        }
     }
 
     @Override

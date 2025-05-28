@@ -9,10 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @Builder
@@ -20,7 +17,7 @@ import java.util.Set;
 public class Film {
     private final Set<Integer> likes = new HashSet<>();
     @NotNull
-    private final Set<Genre> genres = new HashSet<>();
+    private final Set<Genre> genres = new LinkedHashSet<>();
     @NotNull
     private final Set<Director> directors = new HashSet<>();
     private int id;

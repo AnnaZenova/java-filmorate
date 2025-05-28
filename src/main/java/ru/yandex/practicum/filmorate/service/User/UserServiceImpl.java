@@ -83,7 +83,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(int id) {
         User user = userStorage.getUserById(id);
-        userStorage.deleteUser(id);
+        if (user != null){
+            userStorage.deleteUser(id);
+        } else {
+            throw new NotFoundException("Нет такого юзера !");
+        }
         log.info("Удален пользователь user: {}", user);
     }
 
