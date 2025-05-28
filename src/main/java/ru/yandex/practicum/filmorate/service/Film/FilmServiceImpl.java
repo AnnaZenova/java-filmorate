@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.Event.EventStorage;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.model.enums.OperationType;
 import ru.yandex.practicum.filmorate.storage.Film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.User.UserStorage;
 
@@ -22,6 +25,7 @@ public class FilmServiceImpl implements FilmService {
 
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final EventStorage eventStorage;
 
     @Override
     public void addLike(@Valid int filmId, @Valid int userId) {
@@ -29,6 +33,7 @@ public class FilmServiceImpl implements FilmService {
         if (film != null) {
             if (userStorage.getUserById(userId) != null) {
                 filmStorage.putLikeToFilm(filmId, userId);
+                eventStorage.createEvent(userId, EventType.LIKE, OperationType.ADD, filmId);
                 log.info("Добавлен лайк пользователя с id-" + userId + " к фильму " + filmStorage.getFilmById(filmId));
             } else {
                 throw new NotFoundException("Пользователь c ID=" + userId + " не найден!");
@@ -41,6 +46,7 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public void deleteLike(@Valid int filmId, @Valid int userId) {
         filmStorage.deleteLike(filmId, userId);
+        eventStorage.createEvent(userId, EventType.LIKE, OperationType.REMOVE, filmId);
     }
 
     @Override
@@ -48,17 +54,15 @@ public class FilmServiceImpl implements FilmService {
         if (count <= 0) {
             throw new IllegalArgumentException("Count must be positive");
         }
-
-        List<Film> allFilms = new ArrayList<>(filmStorage.findAll());
-
-        // Сортируем по возрастанию лайков (как ожидает тест)
-        allFilms.sort((f1, f2) -> {
-            int likes1 = f1.getLikes() != null ? f1.getLikes().size() : 0;
-            int likes2 = f2.getLikes() != null ? f2.getLikes().size() : 0;
-            return Integer.compare(likes2, likes1); // Обратное сравнение
-        });
-        log.info("Возвращаем список наиболее популярных фильмов");
-        return allFilms.subList(0, Math.min(count, allFilms.size()));
+        if (genreId != null && year != null) {
+            return filmStorage.getPopularFilmsByGenreAndYear(count, genreId, year);
+        } else if (genreId != null) {
+            return filmStorage.getPopularFilmsByGenre(count, genreId);
+        } else if (year != null) {
+            return filmStorage.getPopularFilmsByYear(count, year);
+        } else {
+            return new ArrayList<>(filmStorage.getPopularFilms(count));
+        }
     }
 
     @Override
@@ -73,7 +77,6 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film update(@RequestBody @Valid Film newFilm) {
-        // проверяем необходимые условия
         return filmStorage.update(newFilm);
     }
 

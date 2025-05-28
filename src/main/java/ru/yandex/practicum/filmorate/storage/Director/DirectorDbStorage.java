@@ -51,7 +51,7 @@ public class DirectorDbStorage implements DirectorStorage {
         Integer directorId = keyHolder.getKeyAs(Integer.class);
 
         director.setDirectorId(directorId);
-        log.info("Добавлен новый фильм с ID={}", director.getDirectorId());
+        log.info("Добавлен новый режиссер с ID={}", director.getDirectorId());
         return director;
     }
 
@@ -82,7 +82,29 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public void delete(Integer directorId) {
-        String sql = "DELETE from directors WHERE director_id = ?";
-        jdbcTemplate.update(sql, directorId);
+        if (directorId == null) {
+            throw new IllegalArgumentException("ID режиссера не может быть null");
+        }
+        if (!directorExists(directorId)) {
+            throw new NotFoundException("Режиссер с ID=" + directorId + " не найден");
+        }
+        String deleteLinksSql = "DELETE FROM director_vs_film WHERE director_id = ?";
+        jdbcTemplate.update(deleteLinksSql, directorId);
+
+        String deleteDirectorSql = "DELETE FROM directors WHERE director_id = ?";
+        int rowsDeleted = jdbcTemplate.update(deleteDirectorSql, directorId);
+
+        if (rowsDeleted == 0) {
+            throw new NotFoundException("Режиссер с ID=" + directorId + " не найден");
+        }
+
+        log.info("Режиссер с ID={} успешно удален", directorId);
+
+    }
+
+    private boolean directorExists(Integer directorId) {
+        String sql = "SELECT COUNT(*) FROM directors WHERE director_id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, directorId);
+        return count != null && count > 0;
     }
 }

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.Film;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -12,6 +13,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.Director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.Mpa.MpaDbStorage;
 
 import java.sql.*;
@@ -29,9 +31,11 @@ public class FilmDbStorage implements FilmStorage {
     private MpaDbStorage mpaDbStorage;
 
     private final JdbcTemplate jdbcTemplate;
+    private final DirectorStorage directorStorage;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, DirectorStorage directorStorage) {
         this.jdbcTemplate = jdbcTemplate;
+        this.directorStorage = directorStorage;
     }
 
     @Override
@@ -54,6 +58,7 @@ public class FilmDbStorage implements FilmStorage {
         film.setId(filmId);
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             saveFilmGenres(filmId, film.getGenres());
+            film.setGenres(new ArrayList<>(film.getGenres()));
         }
         if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
             saveFilmDirectors(filmId, film.getDirectors());
@@ -94,6 +99,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void delete(int filmId) {
+        getFilmById(filmId);
         jdbcTemplate.update("DELETE FROM films WHERE film_id = ?", filmId);
         log.info("Удален фильм с ID={}", filmId);
     }
@@ -106,26 +112,29 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film getFilmById(int filmId) {
-        String sql = "SELECT f.*, m.mpa_name FROM films f LEFT JOIN mpa m ON f.mpa_id = m.mpa_id " +
-                "WHERE f.film_id = ?";
-
         try {
-            return jdbcTemplate.queryForObject(sql, this::mapRowToFilm, filmId);
-        } catch (WrongDataException e) {
-            log.info("Фильм не найден с ID={}", filmId);
-            return null;
+            String sql = "SELECT f.*, m.mpa_name FROM films f LEFT JOIN mpa m ON f.mpa_id = m.mpa_id " +
+                    "WHERE f.film_id = ?";
+            Film film = jdbcTemplate.queryForObject(sql, this::mapRowToFilm, filmId);
+            if (film == null) {
+                throw new NotFoundException("Фильм с ID=" + filmId + " не найден");
+            }
+            return film;
+        } catch (EmptyResultDataAccessException e) {
+            throw new NotFoundException("Фильм с ID=" + filmId + " не найден");
         }
     }
 
     @Override
     public void putLikeToFilm(int filmId, int userId) {
-        String sql = "INSERT INTO likes_vs_film (film_id, user_id) VALUES (?, ?)";
+        String sql = "MERGE INTO likes_vs_film (film_id, user_id) KEY(film_id, user_id) VALUES (?, ?)";
         jdbcTemplate.update(sql, filmId, userId);
         log.info("Фильму с ID={} поставил лайк пользователь с ID={}", filmId, userId);
     }
 
     @Override
     public List<Film> getFilmsByDirectorSortedByYear(Integer directorId) {
+        directorStorage.getDirectorById(directorId);
         String sql = "SELECT f.*, m.mpa_name " +
                 "FROM films AS f " +
                 "JOIN director_vs_film AS df ON f.film_id = df.film_id " +
@@ -138,6 +147,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilmsByDirectorSortedByLikes(Integer directorId) {
+        directorStorage.getDirectorById(directorId);
         String sql = "SELECT f.*, m.mpa_name " +
                 "FROM films AS f " +
                 "JOIN director_vs_film AS df ON f.film_id = df.film_id " +
@@ -210,7 +220,7 @@ public class FilmDbStorage implements FilmStorage {
     private List<Genre> getFilmGenres(int filmId) {
         String sql = "SELECT g.genre_id, g.genre_name FROM genre_vs_film fg " +
                 "JOIN genres g ON fg.genre_id = g.genre_id " +
-                "WHERE fg.film_id = ?";
+                "WHERE fg.film_id = ? ";
         return jdbcTemplate.query(sql, this::mapRowToGenre, filmId);
     }
 
@@ -245,6 +255,9 @@ public class FilmDbStorage implements FilmStorage {
                 .filter(g -> g != null && g.getGenreId() != null)
                 .collect(Collectors.toList());
 
+        validGenres.sort((g1, g2) -> {
+            return g1.getGenreId() - g2.getGenreId();
+        });
         if (validGenres.isEmpty()) {
             return;
         }
@@ -296,7 +309,6 @@ public class FilmDbStorage implements FilmStorage {
         });
     }
 
-    // Получаем уникальный список фильмов которые "лайкал" пользователь.
     @Override
     public List<Integer> findFilmsLikedByUser(int userId) {
         log.debug("Получение списка фильмов, которым поставил лайки пользователь с ID: {}", userId);
@@ -317,7 +329,6 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE l1.user_id = ? AND l2.user_id != ? " +
                 "GROUP BY l2.user_id";
 
-        // Заполняем таблицу Ключ: user_id пересекающихся по лайкам пользователей. Значение: Кол-во пересечений, с user_id
         Map<Integer, Integer> commonLikes = jdbcTemplate.query(sql,
                 rs -> {
                     Map<Integer, Integer> result = new HashMap<>();

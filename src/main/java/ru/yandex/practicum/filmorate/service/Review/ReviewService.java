@@ -25,4 +25,6 @@ public interface ReviewService {
     void deleteUsersLike(int reviewId, int userId);
 
     void deleteUsersDislike(int reviewId, int userId);
+
+    List<Review> getAllReviews();
 }

@@ -110,14 +110,18 @@ public class UserDbStorage implements UserStorage {
                     null);
             return user;
         } else {
-            return null;
+            throw new NotFoundException("Пользователь с таким ID не найден");
         }
     }
 
     @Override
     public void deleteUser(int userId) {
         String sql = "DELETE FROM users WHERE user_id = ?";
-        jdbcTemplate.update(sql, userId);
+        if (userExists(userId)) {
+            jdbcTemplate.update(sql, userId);
+        } else {
+            throw new NotFoundException("Нет такого юзера !");
+        }
     }
 
     @Override
@@ -169,7 +173,6 @@ public class UserDbStorage implements UserStorage {
         jdbcTemplate.update(sql, id, friendId);
     }
 
-
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
         return User.builder()
                 .id(resultSet.getInt("user_id"))
@@ -192,4 +195,3 @@ public class UserDbStorage implements UserStorage {
         return count != null && count > 0;
     }
 }
-
