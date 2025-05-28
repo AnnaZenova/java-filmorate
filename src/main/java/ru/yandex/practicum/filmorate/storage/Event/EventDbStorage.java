@@ -55,14 +55,14 @@ public class EventDbStorage implements EventStorage {
             ps.setInt(5, event.getEntityId());
             return ps;
         }, holder);
-        event.setId(holder.getKeyAs(Integer.class));
-        log.info("Событие с идентификатором {} создано", event.getId());
+        event.setEventId(holder.getKeyAs(Integer.class));
+        log.info("Событие с идентификатором {} создано", event.getEventId());
         return event;
     }
 
     private Event mapRowToEvent(ResultSet resultSet, int rowNum) throws SQLException {
         return Event.builder()
-                .id(resultSet.getInt("event_id"))
+                .eventId(resultSet.getInt("event_id"))
                 .userId(resultSet.getInt("user_id"))
                 .timestamp(resultSet.getLong("timestamps"))
                 .eventType(EventEnum.valueOf(resultSet.getString("event_type")))
