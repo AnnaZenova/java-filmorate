@@ -8,13 +8,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.enums.EventEnum;
-import ru.yandex.practicum.filmorate.model.enums.OperationEnum;
 import ru.yandex.practicum.filmorate.storage.Event.EventStorage;
 import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.model.enums.OperationType;
-import ru.yandex.practicum.filmorate.storage.Event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.Film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.User.UserStorage;
 
@@ -81,7 +77,6 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film update(@RequestBody @Valid Film newFilm) {
-        // проверяем необходимые условия
         return filmStorage.update(newFilm);
     }
 

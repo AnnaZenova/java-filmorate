@@ -14,8 +14,6 @@ import ru.yandex.practicum.filmorate.model.Review;
 import java.sql.*;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Repository("ReviewDbStorage")
@@ -215,7 +213,7 @@ public class ReviewDbStorage implements ReviewStorage {
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sql, Boolean.class, reviewId));
     }
 
-    public List<Review> getAllReviews(){
+    public List<Review> getAllReviews() {
         String sql1 = "SELECT * FROM reviews ORDER BY useful DESC";
         return jdbcTemplate.query(sql1, this::mapRowToReview);
     }

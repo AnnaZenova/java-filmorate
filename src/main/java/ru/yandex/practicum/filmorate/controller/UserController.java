@@ -89,15 +89,9 @@ public class UserController {
         return recommendationService.getRecommendationsFilms(id);
     }
 
-    @GetMapping("/{id}/feed")
-    public List<Event> getFeedList(@PathVariable("id") int userId) {
-        log.info("Получен GET-запрос к эндпоинту: '/users' на получение ленты событий");
-        return userService.getFeedList(userId);
-    }
-
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public User getUserById(@PathVariable int id){
+    public User getUserById(@PathVariable int id) {
         return userService.getUserById(id);
     }
 }

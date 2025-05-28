@@ -85,27 +85,20 @@ public class DirectorDbStorage implements DirectorStorage {
         if (directorId == null) {
             throw new IllegalArgumentException("ID режиссера не может быть null");
         }
-
-        // Проверяем существование режиссера перед удалением
         if (!directorExists(directorId)) {
             throw new NotFoundException("Режиссер с ID=" + directorId + " не найден");
         }
+        String deleteLinksSql = "DELETE FROM director_vs_film WHERE director_id = ?";
+        jdbcTemplate.update(deleteLinksSql, directorId);
 
-            // Сначала удаляем связи с фильмами (если используется ON DELETE RESTRICT)
-            String deleteLinksSql = "DELETE FROM director_vs_film WHERE director_id = ?";
-            jdbcTemplate.update(deleteLinksSql, directorId);
+        String deleteDirectorSql = "DELETE FROM directors WHERE director_id = ?";
+        int rowsDeleted = jdbcTemplate.update(deleteDirectorSql, directorId);
 
-            // Затем удаляем самого режиссера
-            String deleteDirectorSql = "DELETE FROM directors WHERE director_id = ?";
-            int rowsDeleted = jdbcTemplate.update(deleteDirectorSql, directorId);
+        if (rowsDeleted == 0) {
+            throw new NotFoundException("Режиссер с ID=" + directorId + " не найден");
+        }
 
-            if (rowsDeleted == 0) {
-                // Этот случай теоретически невозможен из-за предыдущей проверки,
-                // но оставлен для защиты от race condition
-                throw new NotFoundException("Режиссер с ID=" + directorId + " не найден");
-            }
-
-            log.info("Режиссер с ID={} успешно удален", directorId);
+        log.info("Режиссер с ID={} успешно удален", directorId);
 
     }
 

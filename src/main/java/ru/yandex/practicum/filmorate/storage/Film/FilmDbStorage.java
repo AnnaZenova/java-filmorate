@@ -255,7 +255,9 @@ public class FilmDbStorage implements FilmStorage {
                 .filter(g -> g != null && g.getGenreId() != null)
                 .collect(Collectors.toList());
 
-        validGenres.sort((g1, g2) -> {return g1.getGenreId() - g2.getGenreId();});
+        validGenres.sort((g1, g2) -> {
+            return g1.getGenreId() - g2.getGenreId();
+        });
         if (validGenres.isEmpty()) {
             return;
         }
@@ -307,7 +309,6 @@ public class FilmDbStorage implements FilmStorage {
         });
     }
 
-    // Получаем уникальный список фильмов которые "лайкал" пользователь.
     @Override
     public List<Integer> findFilmsLikedByUser(int userId) {
         log.debug("Получение списка фильмов, которым поставил лайки пользователь с ID: {}", userId);
@@ -328,7 +329,6 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE l1.user_id = ? AND l2.user_id != ? " +
                 "GROUP BY l2.user_id";
 
-        // Заполняем таблицу Ключ: user_id пересекающихся по лайкам пользователей. Значение: Кол-во пересечений, с user_id
         Map<Integer, Integer> commonLikes = jdbcTemplate.query(sql,
                 rs -> {
                     Map<Integer, Integer> result = new HashMap<>();

@@ -10,9 +10,6 @@ import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.model.enums.OperationType;
 import ru.yandex.practicum.filmorate.storage.Event.EventStorage;
-import ru.yandex.practicum.filmorate.model.enums.EventEnum;
-import ru.yandex.practicum.filmorate.model.enums.OperationEnum;
-import ru.yandex.practicum.filmorate.storage.Event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.Film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.Review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.User.UserStorage;
@@ -101,7 +98,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<Review> getAllReviews(){
+    public List<Review> getAllReviews() {
         return reviewStorage.getAllReviews();
     }
 }

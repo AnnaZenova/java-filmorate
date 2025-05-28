@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.enums.EventType;
@@ -40,22 +41,18 @@ public class UserServiceImpl implements UserService {
         return userStorage.getFriends(userId);
     }
 
-    //вывод списка общих друзей
     @Override
     public List<User> getCommonFriends(int firstUserId, int secondUserId) {
         User firstUser = userStorage.getUserById(firstUserId);
         User secondUser = userStorage.getUserById(secondUserId);
 
-        // Если один из пользователей не найден, возвращаем пустой список
         if (firstUser == null || secondUser == null) {
             return Collections.emptyList();
         }
 
-        // Получаем друзей для обоих пользователей
         Set<User> firstUserFriends = new HashSet<>(userStorage.getFriends(firstUserId));
         Set<User> secondUserFriends = new HashSet<>(userStorage.getFriends(secondUserId));
 
-        // Находим пересечение множеств (общих друзей)
         firstUserFriends.retainAll(secondUserFriends);
         log.info("Вернули список всех пользователей общих друзей");
         return new ArrayList<>(firstUserFriends);
@@ -82,7 +79,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(int id) {
         User user = userStorage.getUserById(id);
-        if (user != null){
+        if (user != null) {
             userStorage.deleteUser(id);
         } else {
             throw new NotFoundException("Нет такого юзера !");
@@ -92,10 +89,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Collection<Event> getEventByUserId(int userId) {
+        getUserById(userId);
         return eventStorage.getEventByUserId(userId);
     }
+
     @Override
-    public User getUserById(int userId){
+    public User getUserById(int userId) {
         return userStorage.getUserById(userId);
     }
 }

@@ -1,9 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.User;
 
-import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.enums.EventEnum;
-import ru.yandex.practicum.filmorate.model.enums.OperationEnum;
 
 import java.util.List;
 
