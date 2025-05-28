@@ -66,7 +66,7 @@ create TABLE IF NOT EXISTS reviews
     isPositive BOOLEAN NOT NULL,
     user_id INTEGER REFERENCES users (user_id) ON delete CASCADE,
     film_id INTEGER REFERENCES films (film_id) ON delete CASCADE,
-    useful INTEGER DEFAULT 0
+    useful INTEGER
     );
 
 create TABLE IF NOT EXISTS review_likes

@@ -93,4 +93,9 @@ public class ReviewServiceImpl implements ReviewService {
         }
         reviewStorage.deleteUsersDislike(id, userId);
     }
+
+    @Override
+    public List<Review> getAllReviews(){
+        return reviewStorage.getAllReviews();
+    }
 }

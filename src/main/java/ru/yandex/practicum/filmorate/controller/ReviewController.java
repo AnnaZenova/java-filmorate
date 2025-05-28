@@ -49,9 +49,15 @@ public class ReviewController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<Review> getReviewByFilmId(@RequestParam(required = false) Integer filmId,
-                                          @RequestParam(defaultValue = "10") Integer count) {
+                                          @RequestParam(required = false) Integer count) {
+        if(filmId == null && count == null){
+            return reviewService.getAllReviews();
+        }
         if (filmId == null) {
             return reviewService.getReviewLimit(count);
+        }
+        if(count == null){
+            count = 10;
         }
         return reviewService.getReviewByFilmId(filmId, count);
     }

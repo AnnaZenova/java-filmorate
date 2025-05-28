@@ -14,6 +14,8 @@ import ru.yandex.practicum.filmorate.model.Review;
 import java.sql.*;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Repository("ReviewDbStorage")
@@ -38,7 +40,7 @@ public class ReviewDbStorage implements ReviewStorage {
             ps.setBoolean(2, review.getIsPositive());
             ps.setInt(3, review.getUserId());
             ps.setInt(4, review.getFilmId());
-            ps.setInt(5, review.getUseful());
+            ps.setInt(5, 0);
             return ps;
         }, keyHolder);
         int reviewId = Objects.requireNonNull(keyHolder.getKey()).intValue();
@@ -54,12 +56,11 @@ public class ReviewDbStorage implements ReviewStorage {
             throw new NotFoundException("Отзыв с ID=" + newReview.getReviewId() + " не найден");
         }
         validateReview(newReview);
-        String sql = "UPDATE reviews SET review_content = ?, isPositive = ?, useful = ? WHERE review_id = ?";
+        String sql = "UPDATE reviews SET review_content = ?, isPositive = ? WHERE review_id = ?";
 
         jdbcTemplate.update(sql,
                 newReview.getContent(),
                 newReview.getIsPositive(),
-                newReview.getUseful(),
                 newReview.getReviewId());
 
         log.info("Обновлен отзыв с ID={}", newReview.getReviewId());
@@ -86,8 +87,8 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     @Transactional
     public List<Review> getReviewLimit(int count) {
-        String sql = "SELECT * FROM reviews ORDER BY useful DESC LIMIT ?";
-        return jdbcTemplate.query(sql, this::mapRowToReview, count);
+        String sql1 = "SELECT * FROM reviews ORDER BY useful DESC LIMIT ?";
+        return jdbcTemplate.query(sql1, this::mapRowToReview, count);
     }
 
     @Override
@@ -212,5 +213,10 @@ public class ReviewDbStorage implements ReviewStorage {
     private boolean isReviewExists(int reviewId) {
         String sql = "SELECT EXISTS(SELECT 1 FROM reviews WHERE review_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sql, Boolean.class, reviewId));
+    }
+
+    public List<Review> getAllReviews(){
+        String sql1 = "SELECT * FROM reviews ORDER BY useful DESC";
+        return jdbcTemplate.query(sql1, this::mapRowToReview);
     }
 }
