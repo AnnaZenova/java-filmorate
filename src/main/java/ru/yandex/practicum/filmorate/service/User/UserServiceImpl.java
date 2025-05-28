@@ -94,11 +94,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<Event> getFeedList(int userId){
         log.info("Сервис: выполнение запроса к эндпоинту: '/users' на получение ленты событий");
-        if (userStorage.getUserById(userId) != null){
-            return eventStorage.getFeedList(userId);
-        } else {
-            throw new NotFoundException("Нет такого юзера !");
-        }
+        userStorage.getUserById(userId);
+        return eventStorage.getFeedList(userId);
     }
 
     @Override
