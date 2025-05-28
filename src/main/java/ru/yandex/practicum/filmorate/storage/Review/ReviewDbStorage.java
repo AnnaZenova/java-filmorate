@@ -203,14 +203,14 @@ public class ReviewDbStorage implements ReviewStorage {
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sql, Boolean.class, userId));
     }
 
-    private boolean filmExists(int filmId) {
-        String sql = "SELECT EXISTS(SELECT 1 FROM films WHERE film_id = ?)";
-        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sql, Boolean.class, filmId));
-    }
-
     private boolean isReviewExists(int reviewId) {
         String sql = "SELECT EXISTS(SELECT 1 FROM reviews WHERE review_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sql, Boolean.class, reviewId));
+    }
+
+    private boolean filmExists(int filmId) {
+        String sql = "SELECT EXISTS(SELECT 1 FROM films WHERE film_id = ?)";
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sql, Boolean.class, filmId));
     }
 
     public List<Review> getAllReviews() {
