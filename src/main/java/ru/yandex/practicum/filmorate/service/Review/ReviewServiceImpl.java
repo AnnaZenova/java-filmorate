@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.model.enums.OperationType;
+import ru.yandex.practicum.filmorate.storage.Event.EventStorage;
 import ru.yandex.practicum.filmorate.model.enums.EventEnum;
 import ru.yandex.practicum.filmorate.model.enums.OperationEnum;
 import ru.yandex.practicum.filmorate.storage.Event.EventStorage;
@@ -27,23 +30,24 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Review create(@RequestBody Review review) {
-        Review resReview = reviewStorage.create(review);
-        eventStorage.addEvent(review.getUserId(), EventEnum.REVIEW, OperationEnum.ADD, review.getReviewId());
-        return resReview;
+        review = reviewStorage.create(review);
+        eventStorage.createEvent(review.getUserId(), EventType.REVIEW, OperationType.ADD, review.getReviewId());
+        return review;
     }
 
     @Override
     public Review update(@RequestBody Review newReview) {
-        Review resReview = reviewStorage.update(newReview);
-        eventStorage.addEvent(newReview.getUserId(), EventEnum.REVIEW, OperationEnum.UPDATE, newReview.getReviewId());
-        return resReview;
+        reviewStorage.getReviewById(newReview.getReviewId());
+        newReview = reviewStorage.update(newReview);
+        eventStorage.createEvent(newReview.getUserId(), EventType.REVIEW, OperationType.UPDATE, newReview.getReviewId());
+        return newReview;
     }
 
     @Override
     public void delete(@PathVariable int id) {
         Review review = reviewStorage.getReviewById(id);
+        eventStorage.createEvent(review.getUserId(), EventType.REVIEW, OperationType.REMOVE, id);
         reviewStorage.deleteById(id);
-        eventStorage.addEvent(review.getUserId(), EventEnum.REVIEW, OperationEnum.REMOVE, review.getReviewId());
     }
 
     @Override
@@ -84,6 +88,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new NotFoundException("Пользователь не найден с ID = " + userId);
         }
         reviewStorage.deleteUsersLike(id, userId);
+        eventStorage.createEvent(userId, EventType.LIKE, OperationType.REMOVE, id);
     }
 
     @Override
@@ -92,6 +97,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new NotFoundException("Пользователь не найден с ID = " + userId);
         }
         reviewStorage.deleteUsersDislike(id, userId);
+        eventStorage.createEvent(userId, EventType.LIKE, OperationType.ADD, id);
     }
 
     @Override

@@ -77,6 +77,12 @@ public class UserController {
         userService.deleteUser(id);
     }
 
+    @GetMapping("{id}/feed")
+    public Collection<Event> getUserFeed(@PathVariable("id") int userId) {
+        log.info("GET request received: get feed of user \"{}\"", userId);
+        return userService.getEventByUserId(userId);
+    }
+
     @GetMapping("/{id}/recommendations")
     public List<Film> getRecommendationsFilm(@PathVariable("id") int id) {
         log.info("Получен GET-запрос к эндпоинту: '/users' на получение рекомендаций по фильмам");

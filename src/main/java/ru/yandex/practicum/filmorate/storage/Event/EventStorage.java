@@ -1,13 +1,13 @@
 package ru.yandex.practicum.filmorate.storage.Event;
 
 import ru.yandex.practicum.filmorate.model.Event;
-import ru.yandex.practicum.filmorate.model.enums.EventEnum;
-import ru.yandex.practicum.filmorate.model.enums.OperationEnum;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.model.enums.OperationType;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface EventStorage {
-    List<Event> getFeedList(int userId);
+    void createEvent(int userId, EventType eventType, OperationType operationType, int entityId);
 
-    Event addEvent(int userId, EventEnum eventType, OperationEnum operationEnum, int entityId);
+    Collection<Event> getEventByUserId(int userId);
 }

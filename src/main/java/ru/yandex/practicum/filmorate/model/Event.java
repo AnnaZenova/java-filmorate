@@ -1,19 +1,24 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.Builder;
 import lombok.Data;
-import ru.yandex.practicum.filmorate.model.enums.OperationEnum;
-import ru.yandex.practicum.filmorate.model.enums.EventEnum;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.model.enums.OperationType;
 
 @Data
 @Builder
-@AllArgsConstructor
 public class Event {
-    private int eventId;
-    private int userId;
+    @PastOrPresent
     private long timestamp;
-    private EventEnum eventType;
-    private OperationEnum operation;
-    private int entityId;
+    @NotNull
+    private long userId;
+    @NotNull
+    private EventType eventType;
+    @NotNull
+    private OperationType operation;
+    private long eventId;
+    @NotNull
+    private long entityId;
 }

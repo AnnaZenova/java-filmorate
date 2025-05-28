@@ -23,6 +23,8 @@ public interface UserService {
 
     void deleteUser(int id);
 
-    List<Event> getFeedList(int userId);
+
     User getUserById(int userId);
+
+    Collection<Event> getEventByUserId(int id);
 }

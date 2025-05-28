@@ -12,6 +12,9 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.enums.EventEnum;
 import ru.yandex.practicum.filmorate.model.enums.OperationEnum;
 import ru.yandex.practicum.filmorate.storage.Event.EventStorage;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.model.enums.OperationType;
+import ru.yandex.practicum.filmorate.storage.Event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.Film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.User.UserStorage;
 
@@ -29,25 +32,25 @@ public class FilmServiceImpl implements FilmService {
     private final EventStorage eventStorage;
 
     @Override
-    public void addLike(int filmId, int userId) {
+    public void addLike(@Valid int filmId, @Valid int userId) {
         Film film = filmStorage.getFilmById(filmId);
-        User user = userStorage.getUserById(userId);
-
-        if (film == null) {
-            throw new NotFoundException("Фильм с ID=" + filmId + " не найден!");
+        if (film != null) {
+            if (userStorage.getUserById(userId) != null) {
+                filmStorage.putLikeToFilm(filmId, userId);
+                eventStorage.createEvent(userId, EventType.LIKE, OperationType.ADD, filmId);
+                log.info("Добавлен лайк пользователя с id-" + userId + " к фильму " + filmStorage.getFilmById(filmId));
+            } else {
+                throw new NotFoundException("Пользователь c ID=" + userId + " не найден!");
+            }
+        } else {
+            throw new NotFoundException("Фильм c ID=" + filmId + " не найден!");
         }
-        if (user == null) {
-            throw new NotFoundException("Пользователь с ID=" + userId + " не найден!");
-        }
-        filmStorage.putLikeToFilm(filmId, userId);
-        log.info("Пользователь ID={} поставил лайк фильму ID={}", userId, filmId);
-        eventStorage.addEvent(userId, EventEnum.LIKE, OperationEnum.ADD, filmId);
     }
 
     @Override
     public void deleteLike(@Valid int filmId, @Valid int userId) {
         filmStorage.deleteLike(filmId, userId);
-        eventStorage.addEvent(userId, EventEnum.LIKE, OperationEnum.REMOVE, filmId);
+        eventStorage.createEvent(userId, EventType.LIKE, OperationType.REMOVE, filmId);
     }
 
     @Override
@@ -78,6 +81,7 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film update(@RequestBody @Valid Film newFilm) {
+        // проверяем необходимые условия
         return filmStorage.update(newFilm);
     }
 

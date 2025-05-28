@@ -4,11 +4,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.enums.EventEnum;
-import ru.yandex.practicum.filmorate.model.enums.OperationEnum;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.model.enums.OperationType;
 import ru.yandex.practicum.filmorate.storage.Event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.User.UserStorage;
 
@@ -24,15 +23,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public void addFriend(int userId, int friendId) {
         userStorage.addFriend(userId, friendId);
+        eventStorage.createEvent(userId, EventType.FRIEND, OperationType.ADD, friendId);
         log.info("Добавили друга пользователю с ID: {}", userId);
-        eventStorage.addEvent(userId, EventEnum.FRIEND, OperationEnum.ADD, friendId);
     }
 
     @Override
     public void deleteFriend(int userId, int friendId) {
         userStorage.deleteFriend(userId, friendId);
+        eventStorage.createEvent(userId, EventType.FRIEND, OperationType.REMOVE, friendId);
         log.info("Удалили друга у пользователя с ID: {}", userId);
-        eventStorage.addEvent(userId, EventEnum.FRIEND, OperationEnum.REMOVE, friendId);
     }
 
     @Override
@@ -92,12 +91,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Event> getFeedList(int userId){
-        log.info("Сервис: выполнение запроса к эндпоинту: '/users' на получение ленты событий");
-        userStorage.getUserById(userId);
-        return eventStorage.getFeedList(userId);
+    public Collection<Event> getEventByUserId(int userId) {
+        return eventStorage.getEventByUserId(userId);
     }
-
     @Override
     public User getUserById(int userId){
         return userStorage.getUserById(userId);
