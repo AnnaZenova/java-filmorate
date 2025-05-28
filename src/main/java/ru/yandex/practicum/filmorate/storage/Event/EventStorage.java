@@ -7,7 +7,7 @@ import ru.yandex.practicum.filmorate.model.enums.OperationType;
 import java.util.Collection;
 
 public interface EventStorage {
-    Event createEvent(int userId, EventType eventType, OperationType operationType, int entityId);
+    void createEvent(int userId, EventType eventType, OperationType operationType, int entityId);
 
     Collection<Event> getEventByUserId(int userId);
 }

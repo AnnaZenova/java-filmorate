@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.model.enums.OperationType;
+import ru.yandex.practicum.filmorate.storage.Event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.Film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.Review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.User.UserStorage;
@@ -20,19 +23,27 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewStorage reviewStorage;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final EventStorage eventStorage;
 
     @Override
     public Review create(@RequestBody Review review) {
-        return reviewStorage.create(review);
+        review = reviewStorage.create(review);
+        eventStorage.createEvent(review.getUserId(), EventType.REVIEW, OperationType.ADD, review.getReviewId());
+        return review;
     }
 
     @Override
     public Review update(@RequestBody Review newReview) {
-        return reviewStorage.update(newReview);
+        reviewStorage.getReviewById(newReview.getReviewId());
+        newReview = reviewStorage.update(newReview);
+        eventStorage.createEvent(newReview.getUserId(), EventType.REVIEW, OperationType.UPDATE, newReview.getReviewId());
+        return newReview;
     }
 
     @Override
     public void delete(@PathVariable int id) {
+        Review review = reviewStorage.getReviewById(id);
+        eventStorage.createEvent(review.getUserId(), EventType.REVIEW, OperationType.REMOVE, id);
         reviewStorage.deleteById(id);
     }
 
@@ -74,6 +85,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new NotFoundException("Пользователь не найден с ID = " + userId);
         }
         reviewStorage.deleteUsersLike(id, userId);
+        eventStorage.createEvent(userId, EventType.LIKE, OperationType.REMOVE, id);
     }
 
     @Override
@@ -82,5 +94,6 @@ public class ReviewServiceImpl implements ReviewService {
             throw new NotFoundException("Пользователь не найден с ID = " + userId);
         }
         reviewStorage.deleteUsersDislike(id, userId);
+        eventStorage.createEvent(userId, EventType.LIKE, OperationType.ADD, id);
     }
 }

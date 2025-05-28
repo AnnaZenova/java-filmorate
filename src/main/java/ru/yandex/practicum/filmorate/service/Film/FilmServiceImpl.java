@@ -32,8 +32,8 @@ public class FilmServiceImpl implements FilmService {
         Film film = filmStorage.getFilmById(filmId);
         if (film != null) {
             if (userStorage.getUserById(userId) != null) {
-                eventStorage.createEvent(userId, EventType.LIKE, OperationType.ADD, filmId);
                 filmStorage.putLikeToFilm(filmId, userId);
+                eventStorage.createEvent(userId, EventType.LIKE, OperationType.ADD, filmId);
                 log.info("Добавлен лайк пользователя с id-" + userId + " к фильму " + filmStorage.getFilmById(filmId));
             } else {
                 throw new NotFoundException("Пользователь c ID=" + userId + " не найден!");
@@ -46,6 +46,7 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public void deleteLike(@Valid int filmId, @Valid int userId) {
         filmStorage.deleteLike(filmId, userId);
+        eventStorage.createEvent(userId, EventType.LIKE, OperationType.REMOVE, filmId);
     }
 
     @Override

@@ -77,7 +77,7 @@ public class UserController {
     }
 
     @GetMapping("{id}/feed")
-    public Collection<Event> getUserFeed(@PathVariable int userId) {
+    public Collection<Event> getUserFeed(@PathVariable("id") int userId) {
         log.info("GET request received: get feed of user \"{}\"", userId);
         return userService.getEventByUserId(userId);
     }

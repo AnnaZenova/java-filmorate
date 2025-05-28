@@ -22,15 +22,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void addFriend(int userId, int friendId) {
-        eventStorage.createEvent(userId, EventType.FRIEND, OperationType.ADD, friendId);
         userStorage.addFriend(userId, friendId);
+        eventStorage.createEvent(userId, EventType.FRIEND, OperationType.ADD, friendId);
         log.info("Добавили друга пользователю с ID: {}", userId);
     }
 
     @Override
     public void deleteFriend(int userId, int friendId) {
-        eventStorage.createEvent(userId, EventType.FRIEND, OperationType.REMOVE, friendId);
         userStorage.deleteFriend(userId, friendId);
+        eventStorage.createEvent(userId, EventType.FRIEND, OperationType.REMOVE, friendId);
         log.info("Удалили друга у пользователя с ID: {}", userId);
     }
 
