@@ -1,17 +1,26 @@
 package ru.yandex.practicum.filmorate.storage.User;
 
+import com.jayway.jsonpath.internal.path.ArraySliceOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.WrongDataException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.enums.EventEnum;
+import ru.yandex.practicum.filmorate.model.enums.OperationEnum;
+import ru.yandex.practicum.filmorate.storage.Event.EventStorage;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -168,7 +177,6 @@ public class UserDbStorage implements UserStorage {
         String sql = "DELETE FROM friends_vs_users WHERE user_id = ? AND friend_id = ?";
         jdbcTemplate.update(sql, id, friendId);
     }
-
 
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
         return User.builder()
