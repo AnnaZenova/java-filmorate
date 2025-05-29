@@ -29,6 +29,7 @@ public class ReviewServiceImpl implements ReviewService {
     public Review create(@RequestBody Review review) {
         review = reviewStorage.create(review);
         eventStorage.createEvent(review.getUserId(), EventType.REVIEW, OperationType.ADD, review.getReviewId());
+        log.info("Создан отзыв с ID:{}", review.getReviewId());
         return review;
     }
 
@@ -37,6 +38,7 @@ public class ReviewServiceImpl implements ReviewService {
         reviewStorage.getReviewById(newReview.getReviewId());
         newReview = reviewStorage.update(newReview);
         eventStorage.createEvent(newReview.getUserId(), EventType.REVIEW, OperationType.UPDATE, newReview.getReviewId());
+        log.info("Обновлен отзыв с ID:{}", newReview.getReviewId());
         return newReview;
     }
 
@@ -45,21 +47,25 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewStorage.getReviewById(id);
         eventStorage.createEvent(review.getUserId(), EventType.REVIEW, OperationType.REMOVE, id);
         reviewStorage.deleteById(id);
+        log.info("Удален отзыв с ID:{}", id);
     }
 
     @Override
     public List<Review> getReviewByFilmId(int filmId, int count) {
         filmStorage.getFilmById(filmId);
+        log.info("Передан список отзывов к фильму с ID:{}", filmId);
         return reviewStorage.getReviewByFilmId(filmId, count);
     }
 
     @Override
     public List<Review> getReviewLimit(int count) {
+        log.info("Передан список отзывов, ограниченный количеством {}", count);
         return reviewStorage.getReviewLimit(count);
     }
 
     @Override
     public Review getReviewById(int id) {
+        log.info("Передан отзыв с id {}", id);
         return reviewStorage.getReviewById(id);
     }
 
@@ -68,6 +74,7 @@ public class ReviewServiceImpl implements ReviewService {
         if (userStorage.getUserById(userId) == null) {
             throw new NotFoundException("Пользователь не найден с ID = " + userId);
         }
+        log.info("Обработаны лайки пользователя с id = {}", userId);
         reviewStorage.userLikesReview(id, userId);
     }
 
@@ -76,6 +83,7 @@ public class ReviewServiceImpl implements ReviewService {
         if (userStorage.getUserById(userId) == null) {
             throw new NotFoundException("Пользователь не найден с ID = " + userId);
         }
+        log.info("Обработаны дизлайки пользователя с id = {}", userId);
         reviewStorage.userDislikesReview(id, userId);
     }
 
@@ -85,6 +93,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new NotFoundException("Пользователь не найден с ID = " + userId);
         }
         reviewStorage.deleteUsersLike(id, userId);
+        log.info("Удален лайк пользователя с id = {} в ревью с id = {}", userId, id);
         eventStorage.createEvent(userId, EventType.LIKE, OperationType.REMOVE, id);
     }
 
@@ -94,11 +103,13 @@ public class ReviewServiceImpl implements ReviewService {
             throw new NotFoundException("Пользователь не найден с ID = " + userId);
         }
         reviewStorage.deleteUsersDislike(id, userId);
+        log.info("Удален дизлайк пользователя с id = {} в ревью с id = {}", userId, id);
         eventStorage.createEvent(userId, EventType.LIKE, OperationType.ADD, id);
     }
 
     @Override
     public List<Review> getAllReviews() {
+        log.info("Передан список всех отзывов");
         return reviewStorage.getAllReviews();
     }
 }

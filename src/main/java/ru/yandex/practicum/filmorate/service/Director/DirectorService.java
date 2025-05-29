@@ -5,7 +5,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import java.util.List;
 
 public interface DirectorService {
-    List<Director> findAll();
+    List<Director> getAllDirectors();
 
     Director create(Director director);
 

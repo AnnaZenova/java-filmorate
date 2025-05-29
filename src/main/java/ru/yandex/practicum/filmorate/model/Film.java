@@ -15,11 +15,6 @@ import java.util.*;
 @Builder
 @NoArgsConstructor
 public class Film {
-    private final Set<Integer> likes = new HashSet<>();
-    @NotNull
-    private final Set<Genre> genres = new LinkedHashSet<>();
-    @NotNull
-    private final Set<Director> directors = new HashSet<>();
     private int id;
     @NotBlank(message = "Название фильма не может быть пустым")
     private String name;
@@ -31,6 +26,11 @@ public class Film {
     private int duration;
     @NotNull
     private Mpa mpa;
+    private final Set<Integer> likes = new HashSet<>();
+    @NotNull
+    private final Set<Genre> genres = new LinkedHashSet<>();
+    @NotNull
+    private final Set<Director> directors = new HashSet<>();
 
     public Film(int id,
                 String name,

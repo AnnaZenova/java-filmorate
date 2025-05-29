@@ -36,9 +36,11 @@ public class FilmServiceImpl implements FilmService {
                 eventStorage.createEvent(userId, EventType.LIKE, OperationType.ADD, filmId);
                 log.info("Добавлен лайк пользователя с id-" + userId + " к фильму " + filmStorage.getFilmById(filmId));
             } else {
+                log.info("Выброшено исключение NotFoundException");
                 throw new NotFoundException("Пользователь c ID=" + userId + " не найден!");
             }
         } else {
+            log.info("Выброшено исключение NotFoundException");
             throw new NotFoundException("Фильм c ID=" + filmId + " не найден!");
         }
     }
@@ -47,13 +49,16 @@ public class FilmServiceImpl implements FilmService {
     public void deleteLike(@Valid int filmId, @Valid int userId) {
         filmStorage.deleteLike(filmId, userId);
         eventStorage.createEvent(userId, EventType.LIKE, OperationType.REMOVE, filmId);
+        log.info("Добавлен лайк пользователя с id-" + userId + " к фильму " + filmStorage.getFilmById(filmId));
     }
 
     @Override
     public List<Film> showMostLikedFilms(int count, Integer genreId, Integer year) {
         if (count <= 0) {
+            log.info("Выброшено исключение IllegalArgumentException");
             throw new IllegalArgumentException("Count must be positive");
         }
+        log.info("Возвращен список наиболее понравившихся фильмов!");
         if (genreId != null && year != null) {
             return filmStorage.getPopularFilmsByGenreAndYear(count, genreId, year);
         } else if (genreId != null) {
@@ -67,36 +72,43 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<Film> findAll() {
+        log.info("Возвращен список всех фильмов!");
         return filmStorage.findAll();
     }
 
     @Override
     public Film create(@RequestBody @Valid Film film) {
+        log.info("Создан фильм с id {}", film.getId());
         return filmStorage.create(film);
     }
 
     @Override
     public Film update(@RequestBody @Valid Film newFilm) {
+        log.info("Обновлен фильм с id {}", newFilm.getId());
         return filmStorage.update(newFilm);
     }
 
     @Override
     public void delete(@PathVariable int id) {
+        log.info("Удален фильм с id {}", id);
         filmStorage.delete(id);
     }
 
     @Override
     public Film getFilmById(int filmId) {
+        log.info("Передача фильма с id {}", filmId);
         return filmStorage.getFilmById(filmId);
     }
 
     @Override
     public List<Film> getFilmsByDirectorSortedByYear(Integer directorId) {
+        log.info("Передача отсортированного по годам списка фильмов с id режиссёра {}", directorId);
         return filmStorage.getFilmsByDirectorSortedByYear(directorId);
     }
 
     @Override
     public List<Film> getFilmsByDirectorSortedByLikes(Integer directorId) {
+        log.info("Передача отсортированного по лайкам списка фильмов с id режиссёра {}", directorId);
         return filmStorage.getFilmsByDirectorSortedByLikes(directorId);
     }
 
@@ -104,13 +116,14 @@ public class FilmServiceImpl implements FilmService {
     public List<Film> search(String query, String by) {
         query = "%" + query + "%";
         String[] bySplited = by.split(",");
-        if (bySplited.length == 1 && bySplited[0].equals("director")) {
+        log.info("Передача списка фильмов по субстроке с сортировкой по {}", by);
+        if (bySplited.length == 1 && "director".equals(bySplited[0])) {
             return filmStorage.getFilmsWithQueryAndDirectorName(query);
-        } else if (bySplited.length == 1 && bySplited[0].equals("title")) {
+        } else if (bySplited.length == 1 && "title".equals(bySplited[0])) {
             return filmStorage.getFilmsWithQueryAndFilmName(query);
         } else if (bySplited.length == 2 && (
-                (bySplited[0].equals("title") && bySplited[1].equals("director")) ||
-                        (bySplited[0].equals("director") && bySplited[1].equals("title")))) {
+                ("title".equals(bySplited[0]) && "director".equals(bySplited[1])) ||
+                        ("director".equals(bySplited[0]) && "title".equals(bySplited[1])))) {
             return filmStorage.getFilmsWithQueryAndFilmPlusDirector(query);
         } else {
             return new ArrayList<>();
@@ -120,11 +133,12 @@ public class FilmServiceImpl implements FilmService {
     public List<Film> findCommonFilms(int userId, int friendId) {
         // Проверяем существование пользователей
         if (userStorage.getUserById(userId) == null) {
-            throw new NotFoundException("Пользователь с ID=" + userId + " не найден");
+            throw new NotFoundException(String.format("Пользователь с ID = %d не найден", userId));
         }
         if (userStorage.getUserById(friendId) == null) {
-            throw new NotFoundException("Пользователь с ID=" + friendId + " не найден");
+            throw new NotFoundException(String.format("Пользователь с ID = %d не найден", friendId));
         }
+        log.info("Поиск общих фильмов у пользователей с id = {} и id = {}", userId, friendId);
         return filmStorage.findCommonFilms(userId, friendId);
     }
 }

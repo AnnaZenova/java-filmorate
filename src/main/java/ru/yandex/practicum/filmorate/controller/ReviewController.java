@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
@@ -13,9 +12,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/reviews")
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ReviewController {
-    @Autowired
+
     private final ReviewService reviewService;
 
     @PostMapping
@@ -49,15 +48,12 @@ public class ReviewController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<Review> getReviewByFilmId(@RequestParam(required = false) Integer filmId,
-                                          @RequestParam(required = false) Integer count) {
+                                          @RequestParam(defaultValue = "10") Integer count) {
         if (filmId == null && count == null) {
             return reviewService.getAllReviews();
         }
         if (filmId == null) {
             return reviewService.getReviewLimit(count);
-        }
-        if (count == null) {
-            count = 10;
         }
         return reviewService.getReviewByFilmId(filmId, count);
     }

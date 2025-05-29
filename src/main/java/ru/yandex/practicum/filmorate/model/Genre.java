@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,8 +12,10 @@ import lombok.Data;
 @AllArgsConstructor
 public class Genre {
     @JsonProperty("id")
-    private final Integer genreId;
+    private Integer genreId;
+
     @JsonProperty("name")
-    private final String genreName;
+    @NotBlank
+    private String genreName;
 }
 

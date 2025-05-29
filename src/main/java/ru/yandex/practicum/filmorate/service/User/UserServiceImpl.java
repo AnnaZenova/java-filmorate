@@ -88,13 +88,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Collection<Event> getEventByUserId(int userId) {
+    public Collection<Event> getUserFeed(int userId) {
         getUserById(userId);
+        log.info("Возвращен список действие пользователя с id = {}", userId);
         return eventStorage.getEventByUserId(userId);
     }
 
     @Override
     public User getUserById(int userId) {
+        log.info("Возвращен пользователь с id = {}", userId);
         return userStorage.getUserById(userId);
     }
 }

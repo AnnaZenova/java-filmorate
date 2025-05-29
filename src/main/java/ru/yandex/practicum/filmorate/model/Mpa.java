@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +11,9 @@ import lombok.Data;
 @AllArgsConstructor
 public class Mpa {
     @JsonProperty("id")
-    private final Integer mpaId;
+    private Integer mpaId;
+
     @JsonProperty("name")
-    private final String mpaName;
+    @NotBlank
+    private String mpaName;
 }

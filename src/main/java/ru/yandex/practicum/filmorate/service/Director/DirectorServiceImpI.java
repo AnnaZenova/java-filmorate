@@ -18,7 +18,7 @@ public class DirectorServiceImpI implements DirectorService {
     }
 
     @Override
-    public List<Director> findAll() {
+    public List<Director> getAllDirectors() {
         log.info("Вернули список всех режиссёров");
         return directorStorage.findAll();
     }

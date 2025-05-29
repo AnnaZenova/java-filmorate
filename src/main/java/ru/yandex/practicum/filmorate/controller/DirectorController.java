@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Director;
@@ -12,12 +13,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/directors")
 @Slf4j
+@RequiredArgsConstructor
 public class DirectorController {
-    private DirectorService directorService;
 
-    public DirectorController(DirectorService directorService) {
-        this.directorService = directorService;
-    }
+    private final DirectorService directorService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -51,6 +50,6 @@ public class DirectorController {
     @ResponseStatus(HttpStatus.OK)
     public List<Director> getAllDirectors() {
         log.info("Получен GET-запрос к эндпоинту: '/directors' на получение списка всех режиссёров");
-        return directorService.findAll();
+        return directorService.getAllDirectors();
     }
 }

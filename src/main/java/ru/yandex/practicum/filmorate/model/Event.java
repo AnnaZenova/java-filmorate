@@ -18,6 +18,7 @@ public class Event {
     private EventType eventType;
     @NotNull
     private OperationType operation;
+    @NotNull
     private long eventId;
     @NotNull
     private long entityId;
