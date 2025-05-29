@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.Mpa;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -12,16 +13,13 @@ import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class MpaDbStorage implements MpaStorage {
 
     public static final int MPA_MIN_ID = 1;
     public static final int MPA_MAX_ID = 5;
 
     private final JdbcTemplate jdbcTemplate;
-
-    public MpaDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public List<Mpa> getAllMpa() {

@@ -89,7 +89,6 @@ public class FilmController {
         } else if ("likes".equals(sortBy)) {
             return filmService.getFilmsByDirectorSortedByLikes(directorId);
         } else {
-            log.info("Выброшено исключение NotFoundException");
             throw new NotFoundException("Параметр sortBy должен быть 'year' или 'likes'");
         }
     }
@@ -107,7 +106,6 @@ public class FilmController {
     public List<Film> getCommonFilms(@RequestParam int userId,
                                      @RequestParam int friendId) {
         if (userId == friendId) {
-            log.info("Выброшено исключение WrongDataException");
             throw new WrongDataException("ID юзера должен отличаться от ID друга");
         }
         log.info("Получен GET-запрос к эндпоинту: '/films/common' на получение общих фильмов пользователей {} и {}",

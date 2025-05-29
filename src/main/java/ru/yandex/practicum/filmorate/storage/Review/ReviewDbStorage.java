@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.Review;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,12 +18,9 @@ import java.util.Objects;
 
 @Slf4j
 @Repository("ReviewDbStorage")
+@RequiredArgsConstructor
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
-
-    public ReviewDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     @Transactional
@@ -76,27 +74,23 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    @Transactional
     public List<Review> getReviewByFilmId(int filmId, int count) {
         String sql = "SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC LIMIT ?";
         return jdbcTemplate.query(sql, this::mapRowToReview, filmId, count);
     }
 
     @Override
-    @Transactional
     public List<Review> getReviewLimit(int count) {
         String sql1 = "SELECT * FROM reviews ORDER BY useful DESC LIMIT ?";
         return jdbcTemplate.query(sql1, this::mapRowToReview, count);
     }
 
     @Override
-    @Transactional
     public Review getReviewById(int id) {
         String sql = "SELECT * FROM reviews WHERE review_id = ?";
         try {
             return jdbcTemplate.queryForObject(sql, this::mapRowToReview, id);
         } catch (EmptyResultDataAccessException e) {
-            log.info("Отзыв не найден с ID={}", id);
             throw new NotFoundException("Отзыв с ID=" + id + " не найден");
         }
     }

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.Director;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -16,13 +17,9 @@ import java.util.List;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class DirectorDbStorage implements DirectorStorage {
-
     private final JdbcTemplate jdbcTemplate;
-
-    public DirectorDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public List<Director> findAll() {
@@ -76,7 +73,6 @@ public class DirectorDbStorage implements DirectorStorage {
             log.info("Получена информация о режиссёре с ID={}", directorId);
             return director;
         }
-        log.info("Режиссёр не найден с ID={}", directorId);
         throw new NotFoundException("Нет такого режиссёра !");
     }
 
@@ -97,9 +93,7 @@ public class DirectorDbStorage implements DirectorStorage {
         if (rowsDeleted == 0) {
             throw new NotFoundException("Режиссер с ID=" + directorId + " не найден");
         }
-
         log.info("Режиссер с ID={} успешно удален", directorId);
-
     }
 
     private boolean directorExists(Integer directorId) {

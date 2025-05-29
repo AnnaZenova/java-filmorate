@@ -36,11 +36,9 @@ public class FilmServiceImpl implements FilmService {
                 eventStorage.createEvent(userId, EventType.LIKE, OperationType.ADD, filmId);
                 log.info("Добавлен лайк пользователя с id-" + userId + " к фильму " + filmStorage.getFilmById(filmId));
             } else {
-                log.info("Выброшено исключение NotFoundException");
                 throw new NotFoundException("Пользователь c ID=" + userId + " не найден!");
             }
         } else {
-            log.info("Выброшено исключение NotFoundException");
             throw new NotFoundException("Фильм c ID=" + filmId + " не найден!");
         }
     }
@@ -55,7 +53,6 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public List<Film> showMostLikedFilms(int count, Integer genreId, Integer year) {
         if (count <= 0) {
-            log.info("Выброшено исключение IllegalArgumentException");
             throw new IllegalArgumentException("Count must be positive");
         }
         log.info("Возвращен список наиболее понравившихся фильмов!");
@@ -131,7 +128,6 @@ public class FilmServiceImpl implements FilmService {
     }
 
     public List<Film> findCommonFilms(int userId, int friendId) {
-        // Проверяем существование пользователей
         if (userStorage.getUserById(userId) == null) {
             throw new NotFoundException(String.format("Пользователь с ID = %d не найден", userId));
         }

@@ -44,4 +44,6 @@ public interface FilmStorage {
 
     List<Film> getPopularFilmsByYear(int count, Integer year);
 
+    List<Film> getRecommendationFilms(int userId);
+
 }

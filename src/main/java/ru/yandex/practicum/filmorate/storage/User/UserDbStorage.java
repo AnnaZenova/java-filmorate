@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.User;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -19,14 +19,10 @@ import java.util.Set;
 
 @Slf4j
 @Repository("UserDbStorage")
+@RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public UserDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public List<User> findAll() {
@@ -46,22 +42,18 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        if (Integer.valueOf(user.getId()) == null) {
-            throw new WrongDataException("Передан пустой аргумент!");
+        String sqlQuery = "UPDATE users SET " + "email = ?, login = ?, user_name = ?, birthday = ? " +
+                "WHERE user_id = ?";
+        if (getUserById(user.getId()) == null) {
+            throw new NotFoundException("Пользователь с ID=" + user.getId() + " не найден!");
         } else {
-            String sqlQuery = "UPDATE users SET " + "email = ?, login = ?, user_name = ?, birthday = ? " +
-                    "WHERE user_id = ?";
-            if (getUserById(user.getId()) == null) {
-                throw new NotFoundException("Пользователь с ID=" + user.getId() + " не найден!");
-            } else {
-                jdbcTemplate.update(sqlQuery,
-                        user.getEmail(),
-                        user.getLogin(),
-                        user.getName(),
-                        user.getBirthday(),
-                        user.getId());
-                log.info("Пользователь с ID={} успешно обновлен", user.getId());
-            }
+            jdbcTemplate.update(sqlQuery,
+                    user.getEmail(),
+                    user.getLogin(),
+                    user.getName(),
+                    user.getBirthday(),
+                    user.getId());
+            log.info("Пользователь с ID={} успешно обновлен", user.getId());
         }
         return user;
     }
@@ -126,15 +118,12 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void addFriend(int id, int friendId) {
-        // Проверка существования пользователей в БД
         if (!userExists(id)) {
             throw new NotFoundException("Пользователь с ID=" + id + " не найден");
         }
         if (!userExists(friendId)) {
             throw new NotFoundException("Пользователь с ID=" + friendId + " не найден");
         }
-
-        // Проверка, не являются ли уже друзьями
         if (friendshipExists(id, friendId)) {
             throw new WrongDataException("Пользователи уже друзья");
         }
