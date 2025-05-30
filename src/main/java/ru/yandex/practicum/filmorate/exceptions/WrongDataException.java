@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class WrongDataException extends IllegalArgumentException {
     public WrongDataException(String message) {
-        log.error(message);
+        super(message);
     }
 }
 

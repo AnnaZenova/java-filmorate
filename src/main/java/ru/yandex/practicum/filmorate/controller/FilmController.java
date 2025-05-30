@@ -1,11 +1,13 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.WrongDataException;
 import ru.yandex.practicum.filmorate.model.Film;
-import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.service.Film.FilmService;
 
 import java.util.Collection;
@@ -14,13 +16,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/films")
 @Slf4j
+@RequiredArgsConstructor
 public class FilmController {
-    private final FilmService filmService;
 
-    @Autowired
-    public FilmController(FilmService filmService) {
-        this.filmService = filmService;
-    }
+    private final FilmService filmService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -31,9 +30,11 @@ public class FilmController {
 
     @GetMapping("/popular")
     @ResponseStatus(HttpStatus.OK)
-    public List<Film> showMostLikedFilms(@RequestParam(name = "count", defaultValue = "10") Integer count) {
+    public List<Film> showMostLikedFilms(@RequestParam(name = "count", defaultValue = "10") Integer count,
+                                         @RequestParam(name = "genreId", required = false) Integer genreId,
+                                         @RequestParam(name = "year", required = false) Integer year) {
         log.info("Получен GET-запрос к эндпоинту: '/films' на получение самого отлайканного фильма");
-        return filmService.showMostLikedFilms(count);
+        return filmService.showMostLikedFilms(count, genreId, year);
     }
 
     @PostMapping
@@ -76,6 +77,40 @@ public class FilmController {
     public Film getFilmById(@PathVariable int id) {
         log.info("Получен GET-запрос к эндпоинту: '/films' на получение фильмов c ID={}", id);
         return filmService.getFilmById(id);
+    }
+
+    @GetMapping("/director/{directorId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getFilmsByDirector(@PathVariable("directorId") int directorId,
+                                         @RequestParam(defaultValue = "year") String sortBy) {
+        log.info("Получен GET-запрос к эндпоинту: '/films' на получение фильмов режиссёра c ID={}", directorId);
+        if ("year".equals(sortBy)) {
+            return filmService.getFilmsByDirectorSortedByYear(directorId);
+        } else if ("likes".equals(sortBy)) {
+            return filmService.getFilmsByDirectorSortedByLikes(directorId);
+        } else {
+            throw new NotFoundException("Параметр sortBy должен быть 'year' или 'likes'");
+        }
+    }
+
+    @GetMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> search(@RequestParam(required = false) String query,
+                             @RequestParam(defaultValue = "title") String by) {
+        log.info("Получен GET-запрос к эндпоинту: '/films/search' на получение фильмов по названию и режиссёру");
+        return filmService.search(query, by);
+    }
+
+    @GetMapping("/common")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getCommonFilms(@RequestParam int userId,
+                                     @RequestParam int friendId) {
+        if (userId == friendId) {
+            throw new WrongDataException("ID юзера должен отличаться от ID друга");
+        }
+        log.info("Получен GET-запрос к эндпоинту: '/films/common' на получение общих фильмов пользователей {} и {}",
+                userId, friendId);
+        return filmService.findCommonFilms(userId, friendId);
     }
 }
 

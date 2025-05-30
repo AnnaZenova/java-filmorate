@@ -6,16 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-
 @Data
-@Builder
 @AllArgsConstructor
-public class Genre {
+@Builder
+public class Director {
     @JsonProperty("id")
-    private Integer genreId;
+    private Integer directorId;
 
     @JsonProperty("name")
     @NotBlank
-    private String genreName;
+    private String directorName;
 }
-

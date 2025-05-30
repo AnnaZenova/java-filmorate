@@ -4,7 +4,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.model.enums.OperationType;
+import ru.yandex.practicum.filmorate.storage.Event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.User.UserStorage;
 
 import java.util.*;
@@ -14,16 +19,19 @@ import java.util.*;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
+    private final EventStorage eventStorage;
 
     @Override
     public void addFriend(int userId, int friendId) {
         userStorage.addFriend(userId, friendId);
+        eventStorage.createEvent(userId, EventType.FRIEND, OperationType.ADD, friendId);
         log.info("Добавили друга пользователю с ID: {}", userId);
     }
 
     @Override
     public void deleteFriend(int userId, int friendId) {
         userStorage.deleteFriend(userId, friendId);
+        eventStorage.createEvent(userId, EventType.FRIEND, OperationType.REMOVE, friendId);
         log.info("Удалили друга у пользователя с ID: {}", userId);
     }
 
@@ -33,22 +41,18 @@ public class UserServiceImpl implements UserService {
         return userStorage.getFriends(userId);
     }
 
-    //вывод списка общих друзей
     @Override
     public List<User> getCommonFriends(int firstUserId, int secondUserId) {
         User firstUser = userStorage.getUserById(firstUserId);
         User secondUser = userStorage.getUserById(secondUserId);
 
-        // Если один из пользователей не найден, возвращаем пустой список
         if (firstUser == null || secondUser == null) {
             return Collections.emptyList();
         }
 
-        // Получаем друзей для обоих пользователей
         Set<User> firstUserFriends = new HashSet<>(userStorage.getFriends(firstUserId));
         Set<User> secondUserFriends = new HashSet<>(userStorage.getFriends(secondUserId));
 
-        // Находим пересечение множеств (общих друзей)
         firstUserFriends.retainAll(secondUserFriends);
         log.info("Вернули список всех пользователей общих друзей");
         return new ArrayList<>(firstUserFriends);
@@ -75,7 +79,24 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(int id) {
         User user = userStorage.getUserById(id);
-        userStorage.deleteUser(id);
+        if (user != null) {
+            userStorage.deleteUser(id);
+        } else {
+            throw new NotFoundException("Нет такого юзера !");
+        }
         log.info("Удален пользователь user: {}", user);
+    }
+
+    @Override
+    public Collection<Event> getUserFeed(int userId) {
+        getUserById(userId);
+        log.info("Возвращен список действие пользователя с id = {}", userId);
+        return eventStorage.getEventByUserId(userId);
+    }
+
+    @Override
+    public User getUserById(int userId) {
+        log.info("Возвращен пользователь с id = {}", userId);
+        return userStorage.getUserById(userId);
     }
 }
